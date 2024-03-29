@@ -101,10 +101,10 @@ Equipment   ||--o{ Rent
 Responsible ||--o{ Rent
 Placement   ||--o{ Equipment
 Placement   ||--o{ Rent
-Responsible ||--|| User
+Responsible ||--|| Users
 Department ||--o{ Responsible
 Responsible ||--o{ Equipment
 
-User ||--o{ User_Role
+Users ||--o{ User_Role
 Role ||--o{ User_Role
 @enduml
