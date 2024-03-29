@@ -1,0 +1,110 @@
+@startuml
+skinparam linetype ortho
+
+'сущности
+
+entity Equipment {
+  PK\t| **id** : //BIGINT//
+  --
+    \t| **inventory_number** : //VARCHAR(50)//
+    \t| **name** : //VARCHAR(255)//
+    \t| **image_data** : //BYTEA//
+    \t| description : //VARCHAR(255)//
+    \t| **commissioning_date** : //DATE//
+    \t| **commissioning_act_number** : //VARCHAR(50)//
+    \t| decommissioning_date : //DATE//
+    \t| decommissioning_act_number : //VARCHAR(50)//
+  --
+  FK1\t| **responsible_id** : //BIGINT//
+  FK2\t| **subcategory_id** : //BIGINT//
+  FK3\t| **placement_id** : //BIGINT//
+}
+
+entity Placement {
+  PK\t| **id** : //BIGINT//
+  --
+    \t| **name** : //VARCHAR(255)// (unique)
+}
+
+entity Department {
+  PK\t| **id** : //BIGINT//
+  --
+    \t| **name** : //VARCHAR(255)//
+}
+
+entity Responsible {
+  PK\t| **id** : //BIGINT//
+  --
+    \t| **first_name** : //VARCHAR(255)//
+    \t| **last_name** : //VARCHAR(255)//
+    \t| patronymic : //VARCHAR(255)//
+    \t| **position** : //VARCHAR(255)//
+    \t| **phone_number** : //VARCHAR(11)//
+    \t| **is_financially_responsible** : //BOOL//
+  --
+  FK1\t| **department_id** : //BIGINT//
+}
+
+entity Category {
+  PK\t| **id** : //BIGINT//
+  --
+    \t| **name** : //VARCHAR(100)//
+}
+
+entity Subcategory {
+  PK\t| **id** : //BIGINT//
+  --
+    \t| **name** : //VARCHAR(100)//
+  --
+  FK1\t| **category_id** : //BIGINT//
+}
+
+entity Rent {
+  PK\t| **id** : //BIGINT//
+  --
+    \t| **create_date** : //TIMESTAMP//
+    \t| end_date : //TIMESTAMP//
+    \t| description : //VARCHAR(255)//
+  --
+  FK1\t| **equipment_id** : //BIGINT//
+  FK2\t| **responsible_id** : //BIGINT//
+  FK3\t| **placement_id** : //BIGINT//
+}
+
+entity User {
+  PK\t| **id** : //BIGINT//
+  --
+    \t| **username** : //VARCHAR(50)//
+    \t| **password** : //VARCHAR(50)//
+  --
+  FK1\t| **responsible_id** : //BIGINT//
+}
+
+entity Role {
+  PK\t| **id** : //BIGINT//
+  --
+    \t| **name** : //VARCHAR(20)//
+}
+
+entity User_Role {
+  PK\t| **id** : //BIGINT//
+  --
+  FK1\t| **user_id** : //BIGINT//
+  FK2\t| **role_id** : //BIGINT//
+}
+
+'relationships
+
+Category    ||--o{ Subcategory
+Subcategory ||--o{ Equipment
+Equipment   ||--o{ Rent
+Responsible ||--o{ Rent
+Placement   ||--o{ Equipment
+Placement   ||--o{ Rent
+Responsible ||--|| User
+Department ||--o{ Responsible
+Responsible ||--o{ Equipment
+
+User ||--o{ User_Role
+Role ||--o{ User_Role
+@enduml
