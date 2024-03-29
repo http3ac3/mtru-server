@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: inventory
+  datasource:
+    url: jdbc:postgresql://localhost:5432/inventory
+    username: root
+    password: root
+  liquibase:
+    enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none

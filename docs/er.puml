@@ -71,7 +71,7 @@ entity Rent {
   FK3\t| **placement_id** : //BIGINT//
 }
 
-entity User {
+entity Users {
   PK\t| **id** : //BIGINT//
   --
     \t| **username** : //VARCHAR(50)//
