@@ -3,7 +3,6 @@ package com.vlsu.inventory.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 @Entity

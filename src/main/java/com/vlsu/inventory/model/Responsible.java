@@ -124,6 +124,14 @@ public class Responsible {
         this.equipment = equipment;
     }
 
+    public List<Rent> getRents() {
+        return rents;
+    }
+
+    public void setRents(List<Rent> rents) {
+        this.rents = rents;
+    }
+
     @Override
     public String toString() {
         return "Responsible{" +

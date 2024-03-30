@@ -50,4 +50,12 @@ public class Placement {
     public void setEquipment(List<Equipment> equipment) {
         this.equipment = equipment;
     }
+
+    public List<Rent> getRents() {
+        return rents;
+    }
+
+    public void setRents(List<Rent> rents) {
+        this.rents = rents;
+    }
 }
