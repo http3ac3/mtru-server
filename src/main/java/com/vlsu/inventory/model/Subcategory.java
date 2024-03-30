@@ -2,6 +2,8 @@ package com.vlsu.inventory.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "subcategory")
 public class Subcategory {
@@ -16,6 +18,9 @@ public class Subcategory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
+
+    @OneToMany(mappedBy = "subcategory")
+    private List<Equipment> equipment;
 
     public Subcategory() {}
 
@@ -45,6 +50,14 @@ public class Subcategory {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public List<Equipment> getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(List<Equipment> equipment) {
+        this.equipment = equipment;
     }
 
     @Override

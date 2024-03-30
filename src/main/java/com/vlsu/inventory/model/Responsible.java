@@ -2,6 +2,8 @@ package com.vlsu.inventory.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "responsible")
 public class Responsible {
@@ -31,6 +33,13 @@ public class Responsible {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", referencedColumnName = "id")
     private Department department;
+
+    @OneToMany(mappedBy = "responsible")
+    private List<Equipment> equipment;
+
+    @OneToMany(mappedBy = "responsible")
+    private List<Rent> rents;
+
 
     public Responsible() {}
 
@@ -105,6 +114,14 @@ public class Responsible {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public List<Equipment> getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(List<Equipment> equipment) {
+        this.equipment = equipment;
     }
 
     @Override
