@@ -40,6 +40,9 @@ public class Responsible {
     @OneToMany(mappedBy = "responsible")
     private List<Rent> rents;
 
+    @OneToMany(mappedBy = "responsible")
+    private List<User> users;
+
 
     public Responsible() {}
 
@@ -130,6 +133,14 @@ public class Responsible {
 
     public void setRents(List<Rent> rents) {
         this.rents = rents;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
     @Override
