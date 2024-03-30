@@ -1,5 +1,6 @@
 package com.vlsu.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -17,9 +18,11 @@ public class Subcategory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
+    @JsonIgnore
     private Category category;
 
     @OneToMany(mappedBy = "subcategory")
+    @JsonIgnore
     private List<Equipment> equipment;
 
     public Subcategory() {}

@@ -1,5 +1,6 @@
 package com.vlsu.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -43,6 +44,7 @@ public class Equipment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subcategory_id", referencedColumnName = "id")
+    @JsonIgnore
     private Subcategory subcategory;
 
     @ManyToOne(fetch = FetchType.LAZY)
