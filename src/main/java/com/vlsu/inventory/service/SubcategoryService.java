@@ -14,10 +14,8 @@ import java.util.List;
 public class SubcategoryService {
     private final SubcategoryRepository subcategoryRepository;
 
-    private final CategoryRepository categoryRepository;
     public SubcategoryService(SubcategoryRepository subcategoryRepository, CategoryRepository categoryRepository) {
         this.subcategoryRepository = subcategoryRepository;
-        this.categoryRepository = categoryRepository;
     }
 
     public List<Subcategory> getAllSubcategories() {
