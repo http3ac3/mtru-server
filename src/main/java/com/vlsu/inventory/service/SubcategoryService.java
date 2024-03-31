@@ -5,7 +5,6 @@ import com.vlsu.inventory.repository.CategoryRepository;
 import com.vlsu.inventory.repository.SubcategoryRepository;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
