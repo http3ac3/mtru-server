@@ -1,5 +1,6 @@
 package com.vlsu.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -20,14 +21,17 @@ public class Rent {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipment_id", referencedColumnName = "id")
+    @JsonIgnore
     private Equipment equipment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsible_id", referencedColumnName = "id")
+    @JsonIgnore
     private Responsible responsible;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "placement_id", referencedColumnName = "id")
+    @JsonIgnore
     private Placement placement;
 
     public Rent() {};
