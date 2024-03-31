@@ -1,5 +1,6 @@
 package com.vlsu.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -32,15 +33,19 @@ public class Responsible {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", referencedColumnName = "id")
+    @JsonIgnore
     private Department department;
 
     @OneToMany(mappedBy = "responsible")
+    @JsonIgnore
     private List<Equipment> equipment;
 
     @OneToMany(mappedBy = "responsible")
+    @JsonIgnore
     private List<Rent> rents;
 
     @OneToMany(mappedBy = "responsible")
+    @JsonIgnore
     private List<User> users;
 
 
