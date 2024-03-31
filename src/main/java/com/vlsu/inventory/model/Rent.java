@@ -19,6 +19,9 @@ public class Rent {
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
+    @Column(name = "description")
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipment_id", referencedColumnName = "id")
     @JsonIgnore
@@ -65,6 +68,14 @@ public class Rent {
         this.endDate = endDate;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Equipment getEquipment() {
         return equipment;
     }
@@ -95,6 +106,7 @@ public class Rent {
                 "id=" + id +
                 ", createDate=" + createDate +
                 ", endDate=" + endDate +
+                ", description=" + description +
                 '}';
     }
 }
