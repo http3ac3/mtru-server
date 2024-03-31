@@ -1,5 +1,6 @@
 package com.vlsu.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class Department {
     private String name;
 
     @OneToMany(mappedBy = "department")
+    @JsonIgnore
     private List<Responsible> responsibles;
 
     public Department() {}
