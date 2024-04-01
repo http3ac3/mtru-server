@@ -25,6 +25,13 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public User getUserById(Long id) throws ResourceNotFoundException {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with id: " + id + " not found"
+                ));
+    }
+
     public void addUser(User user) throws ResourceNotFoundException {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(user.getRoles());

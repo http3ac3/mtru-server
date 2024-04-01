@@ -30,6 +30,12 @@ public class EquipmentService {
         return paginationMap.getPaginatedMap();
     }
 
+    public Equipment getEquipmentById(Long id) throws ResourceNotFoundException {
+        return equipmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Equipment with id: " + id + " not found"));
+    }
+
     public Equipment getEquipmentByInventoryNumber(String inventoryNumber)
             throws ResourceNotFoundException {
         return equipmentRepository.findByInventoryNumber(inventoryNumber)

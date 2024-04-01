@@ -20,6 +20,12 @@ public class ResponsibleService {
         return responsibleRepository.findAll();
     }
 
+    public Responsible getResponsibleById(Long id) throws ResourceNotFoundException {
+        return responsibleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Responsible with id: " + id + " not found"));
+    }
+
     public List<Responsible> getResponsibleByFullName(String firstName, String lastName, String patronymic) {
         return responsibleRepository.findByFullName(firstName, lastName, patronymic);
     }

@@ -25,6 +25,12 @@ public class RentService {
         this.equipmentRepository = equipmentRepository;
     }
 
+    public Rent getRentById(Long id) throws ResourceNotFoundException {
+        return rentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Rent with id: " + id + " not found"));
+    }
+
     public Map<String, Object> getRentsByCreateDatePageable(LocalDate date, int page, int size) {
         Pageable paging = PageRequest.of(page, size);
         Page<Rent> pageRents = rentRepository.findByCreateDate(date, paging);

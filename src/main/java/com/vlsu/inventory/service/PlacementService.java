@@ -19,6 +19,17 @@ public class PlacementService {
     public List<Placement> getAllPlacements() {
         return placementRepository.findAll();
     }
+    public Placement getPlacementById(Long id) throws ResourceNotFoundException {
+        return placementRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Placement with id: " + id + " not found"));
+    }
+
+    public Placement getPlacementByName(String name) throws ResourceNotFoundException {
+        return placementRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Placement name id: " + name + " not found"));
+    }
 
     public void createPlacement(Placement placement) {
         placementRepository.save(placement);

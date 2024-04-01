@@ -20,6 +20,11 @@ public class SubcategoryService {
     public List<Subcategory> getAllSubcategories() {
         return subcategoryRepository.findAll();
     }
+    public Subcategory getSubcategoryById(Long id) throws ResourceNotFoundException {
+        return subcategoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Subcategory with id: " + id + " not found"));
+    }
 
     public void createSubcategory(Subcategory subcategory) {
         subcategoryRepository.save(subcategory);
