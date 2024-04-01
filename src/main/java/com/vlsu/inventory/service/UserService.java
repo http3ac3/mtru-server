@@ -28,15 +28,14 @@ public class UserService {
     public User getUserById(Long id) throws ResourceNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with id: " + id + " not found"
-                ));
+                        "User with id: " + id + " not found"));
     }
 
     public void addUser(User user) throws ResourceNotFoundException {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(user.getRoles());
         for (Role role : user.getRoles()) {
-            role = roleRepository.findByName(role.getName()).orElseThrow(() -> new ResourceNotFoundException());
+            role = roleRepository.findByName(role.getName()).orElseThrow(ResourceNotFoundException::new);
             if (role.getUsers() == null) {
                 role.setUsers(new ArrayList<>(List.of(user)));
             }
@@ -44,5 +43,28 @@ public class UserService {
                 role.getUsers().add(user);
         }
         userRepository.save(user);
+    }
+
+    public void changePasswordByUsername(String username, String password)
+            throws ResourceNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with username: " + username + " not found"
+                ));
+        user.setPassword(password);
+        userRepository.save(user);
+    }
+
+    public void deleteUserById(Long id) throws ResourceNotFoundException {
+        User userToDelete = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with id: " + id + " not found"
+                ));
+        List<Role> userRoles = roleRepository.findByUsersId(id);
+        for (Role role : userRoles) {
+            System.out.println(role);
+            role.getUsers().remove(userToDelete);
+        }
+        userRepository.deleteById(id);
     }
 }
