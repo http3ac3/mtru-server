@@ -1,5 +1,6 @@
 package com.vlsu.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class User {
     @JoinColumn(name = "responsible_id", referencedColumnName = "id", unique = true)
     private Responsible responsible;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private List<Role> roles;
 
     public User() {}

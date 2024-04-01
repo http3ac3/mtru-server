@@ -20,6 +20,10 @@ public class DepartmentService {
         return departmentRepository.findAll();
     }
 
+    public Department getDepartmentById(Long id) throws ResourceNotFoundException {
+        return departmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Department with id: " + id + " not found"));
+    }
     public Department getDepartmentByName(String name) throws ResourceNotFoundException {
         return departmentRepository.findByName(name)
                 .orElseThrow(() -> new ResourceNotFoundException("Department with name: " + name + " not found"));
