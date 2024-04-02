@@ -29,10 +29,9 @@ public class SecurityConfiguration {
         throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("api/v1/**", "api/v1/rents/**", "api/v1/equipment/**")
+                        .requestMatchers("api/v1/rents/**", "api/v1/equipment/**", "api/v1/placements/**")
                         .authenticated()
-                        .requestMatchers("api/v1/placements/**", "api/v1/departments/**",
-                                "api/v1/responsible/**")
+                        .requestMatchers("api/v1/departments/**", "api/v1/responsible/**")
                         .hasAnyRole("ADMIN", "LABHEAD")
                         .requestMatchers("api/v1/users/**")
                         .hasRole("ADMIN")
