@@ -7,6 +7,7 @@ import com.vlsu.inventory.util.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,21 +26,53 @@ public class DepartmentController {
         return new ResponseEntity<>(departmentService.getAllDepartments(), HttpStatus.OK);
     }
 
-    @GetMapping("/department/{id}")
+    @GetMapping("/departments/{id}")
     public ResponseEntity<?> getDepartmentById(@PathVariable Long id) {
         try {
             Department department = departmentService.getDepartmentById(id);
             return new ResponseEntity<>(department, HttpStatus.OK);
         } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
+    @GetMapping("/departments")
+    public ResponseEntity<?> getDepartmentByName(
+            @RequestParam String name) {
+        try {
+            Department department = departmentService.getDepartmentByName(name);
+            return new ResponseEntity<>(department, HttpStatus.OK);
+        } catch (ResourceNotFoundException exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
     @PostMapping("/departments/new")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Department> createNewDepartment(@RequestBody Department department) {
-        departmentService.createDepartment(department);
-        return new ResponseEntity<>(department, HttpStatus.CREATED);
+    public ResponseEntity<?> createNewDepartment(@RequestBody Department department) {
+        try {
+            departmentService.createDepartment(department);
+            return new ResponseEntity<>(department, HttpStatus.CREATED);
+        } catch (Exception exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/departments/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> updateDepartmentById(
+            @PathVariable Long id, @RequestBody Department departmentRequest) {
+        try {
+            departmentService.updateDepartmentById(id, departmentRequest);
+            return new ResponseEntity<>("Данные были успешно обновлены", HttpStatus.OK);
+        } catch (ResourceNotFoundException exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/departments/{id}")
@@ -49,11 +82,11 @@ public class DepartmentController {
             departmentService.deleteDepartmentById(id);
             return new ResponseEntity<>( HttpStatus.OK);
         } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
         } catch (ResourceHasDependenciesException exception) {
-            return new ResponseEntity<>(exception, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+        } catch (Exception exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
-
 }
