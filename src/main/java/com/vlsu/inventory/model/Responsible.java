@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "responsible")
@@ -44,9 +45,9 @@ public class Responsible {
     @JsonIgnore
     private List<Rent> rents;
 
-    @OneToMany(mappedBy = "responsible")
+    @OneToOne(mappedBy = "responsible", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<User> users;
+    private User user;
 
 
     public Responsible() {}
@@ -140,12 +141,12 @@ public class Responsible {
         this.rents = rents;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public User getUser() {
+        return user;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
@@ -159,5 +160,18 @@ public class Responsible {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", isFinanciallyResponsible=" + isFinanciallyResponsible +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Responsible that = (Responsible) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
