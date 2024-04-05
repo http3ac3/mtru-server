@@ -176,6 +176,10 @@ public class Equipment {
         this.rents = rents;
     }
 
+    public boolean isAlreadyRented() {
+        return rents.stream().anyMatch(r -> r.getEndDate() == null);
+    }
+
     @Override
     public String toString() {
         return "Equipment{" +
