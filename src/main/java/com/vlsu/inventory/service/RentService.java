@@ -83,6 +83,13 @@ public class RentService {
         return rents;
     }
 
+    public List<Rent> getRentsByUser(UserDetailsImpl principal) throws ResourceNotFoundException {
+        Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
+        List<Rent> rents = rentRepository.findByResponsibleId(responsible.getId());
+        if (rents.isEmpty()) throw new ResourceNotFoundException("Nothing was found");
+        return rents;
+    }
+
     public void createRent(Long equipmentId, Long placementId, UserDetailsImpl principal, Rent rent)
             throws ResourceNotFoundException {
         Equipment equipment = equipmentRepository.findById(equipmentId)
@@ -119,7 +126,7 @@ public class RentService {
         rentRepository.deleteByEquipmentId(equipmentId);
     }
 
-    public Map<String, Object> getRentsPageable(List<Rent> rents, int page, int size) throws Exception {
+    public static Map<String, Object> getRentsPageable(List<Rent> rents, int page, int size) throws Exception {
         page = page - 1;
         if (page < 0) throw new Exception("Страница не может быть меньше или равна 0");
         Pageable paging = PageRequest.of(page, size);
