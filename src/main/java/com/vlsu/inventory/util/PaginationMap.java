@@ -9,17 +9,17 @@ import java.util.Map;
 
 public class PaginationMap<T> {
     private final Page<T> pageList;
-    private final List<T> objects;
+    private final String typeName;
 
-    public PaginationMap(@NonNull Page<T> pageList, @NonNull List<T> objects) {
+    public PaginationMap(Page<T> pageList, String typeName) {
         this.pageList = pageList;
-        this.objects = objects;
+        this.typeName = typeName;
     }
 
     public Map<String, Object> getPaginatedMap() {
         Map<String, Object> paginatedMap = new HashMap<>();
-        paginatedMap.put(objects.get(0).getClass().getCanonicalName(), objects);
-        paginatedMap.put("currentPage", pageList.getNumber());
+        paginatedMap.put(typeName, pageList.getContent());
+        paginatedMap.put("currentPage", pageList.getNumber() + 1);
         paginatedMap.put("totalItems", pageList.getTotalElements());
         paginatedMap.put("totalPages", pageList.getTotalPages());
         return paginatedMap;
