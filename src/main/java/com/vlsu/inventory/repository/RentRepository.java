@@ -5,11 +5,16 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface RentRepository extends JpaRepository<Rent, Long>, JpaSpecificationExecutor<Rent> {
+    static Specification<Rent> endDateIsNull() {
+        return (rent, query, criteriaBuilder) -> criteriaBuilder.isNull(rent.get("endDate"));
+    }
+    static Specification<Rent> endDateIsNotNull() {
+        return (rent, query, criteriaBuilder) -> criteriaBuilder.isNotNull(rent.get("endDate"));
+    }
     static Specification<Rent> createDateTimeFrom(LocalDateTime dateTime) {
         return (rent, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(rent.get("createDate"), dateTime);
     }
