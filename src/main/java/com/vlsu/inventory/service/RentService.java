@@ -4,6 +4,7 @@ import com.vlsu.inventory.model.*;
 import com.vlsu.inventory.repository.*;
 import com.vlsu.inventory.security.UserDetailsImpl;
 import com.vlsu.inventory.util.PaginationMap;
+import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -112,17 +113,21 @@ public class RentService {
         rentRepository.save(rentToUpdate);
     }
 
-    public void deleteRentById(Long id) throws ResourceNotFoundException {
+    public void deleteRentById(Long id) throws ResourceNotFoundException, ActionNotAllowedException {
         Rent rentToDelete = rentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rent with id: " + id + " not found"));
+        if (rentToDelete.getEndDate() != null)
+            throw new ActionNotAllowedException("Rent isn't close");
         rentRepository.deleteById(id);
     }
 
     public void deleteRentByEquipmentId(Long equipmentId)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ActionNotAllowedException {
         if (!equipmentRepository.existsById(equipmentId)) {
             throw new ResourceNotFoundException("Equipment with id: " + equipmentId + " not found");
         }
+        if (rentRepository.findByEquipmentId(equipmentId).stream().anyMatch(r -> r.getEndDate() != null))
+            throw new ActionNotAllowedException("Rent isn't close");
         rentRepository.deleteByEquipmentId(equipmentId);
     }
 
