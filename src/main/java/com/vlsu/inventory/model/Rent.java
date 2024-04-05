@@ -14,10 +14,10 @@ public class Rent {
     private Long id;
 
     @Column(name = "create_date", nullable = false)
-    private LocalDateTime createDate;
+    private LocalDateTime createDateTime;
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    private LocalDateTime endDateTime;
 
     @Column(name = "description")
     private String description;
@@ -40,8 +40,8 @@ public class Rent {
     public Rent() {};
 
     public Rent(LocalDateTime createDate, LocalDateTime endDate) {
-        this.createDate = createDate;
-        this.endDate = endDate;
+        this.createDateTime = createDate;
+        this.endDateTime = endDate;
     }
 
     public Long getId() {
@@ -53,19 +53,19 @@ public class Rent {
     }
 
     public LocalDateTime getCreateDate() {
-        return createDate;
+        return createDateTime;
     }
 
     public void setCreateDate(LocalDateTime createDate) {
-        this.createDate = createDate;
+        this.createDateTime = createDate;
     }
 
     public LocalDateTime getEndDate() {
-        return endDate;
+        return endDateTime;
     }
 
     public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
+        this.endDateTime = endDate;
     }
 
     public String getDescription() {
@@ -104,8 +104,8 @@ public class Rent {
     public String toString() {
         return "Rent{" +
                 "id=" + id +
-                ", createDate=" + createDate +
-                ", endDate=" + endDate +
+                ", createDate=" + createDateTime +
+                ", endDate=" + endDateTime +
                 ", description=" + description +
                 '}';
     }
