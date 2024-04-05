@@ -8,7 +8,7 @@ entity Equipment {
   --
     \t| **inventory_number** : //VARCHAR(50)//
     \t| **name** : //VARCHAR(255)//
-    \t| **image_data** : //BYTEA//
+    \t| image_data : //TEXT//
     \t| description : //VARCHAR(255)//
     \t| **commissioning_date** : //DATE//
     \t| **commissioning_act_number** : //VARCHAR(50)//
