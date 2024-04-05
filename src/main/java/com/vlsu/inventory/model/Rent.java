@@ -13,10 +13,10 @@ public class Rent {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "create_date", nullable = false)
+    @Column(name = "create_datetime", nullable = false)
     private LocalDateTime createDateTime;
 
-    @Column(name = "end_date")
+    @Column(name = "end_datetime")
     private LocalDateTime endDateTime;
 
     @Column(name = "description")
@@ -52,19 +52,19 @@ public class Rent {
         this.id = id;
     }
 
-    public LocalDateTime getCreateDate() {
+    public LocalDateTime getCreateDateTime() {
         return createDateTime;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
+    public void setCreateDateTime(LocalDateTime createDate) {
         this.createDateTime = createDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDateTime(LocalDateTime endDate) {
         this.endDateTime = endDate;
     }
 

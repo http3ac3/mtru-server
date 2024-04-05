@@ -177,7 +177,7 @@ public class Equipment {
     }
 
     public boolean isAlreadyRented() {
-        return rents.stream().anyMatch(r -> r.getEndDate() == null);
+        return rents.stream().anyMatch(r -> r.getEndDateTime() == null);
     }
 
     @Override

@@ -94,9 +94,9 @@ public class RentService {
         if (rents.isEmpty()) throw new ResourceNotFoundException("Nothing was found");
 
         if (isClosed)
-            rents = rents.stream().filter(r -> r.getEndDate() != null).collect(Collectors.toList());
+            rents = rents.stream().filter(r -> r.getEndDateTime() != null).collect(Collectors.toList());
         else
-            rents = rents.stream().filter(r -> r.getEndDate() == null).collect(Collectors.toList());
+            rents = rents.stream().filter(r -> r.getEndDateTime() == null).collect(Collectors.toList());
 
         return rents;
     }
@@ -111,7 +111,7 @@ public class RentService {
         Responsible responsible = user.getResponsible();
         Placement placement = placementRepository.findById(placementId)
                         .orElseThrow(() -> new ResourceNotFoundException("Placement with id '" + placementId + "' not found"));
-        rent.setCreateDate(LocalDateTime.now());
+        rent.setCreateDateTime(LocalDateTime.now());
         rent.setEquipment(equipment);
         rent.setResponsible(responsible);
         rent.setPlacement(placement);
@@ -121,14 +121,14 @@ public class RentService {
     public void closeRentById(Long id) throws ResourceNotFoundException {
         Rent rentToUpdate = rentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rent with id '" + id + "' not found"));
-        rentToUpdate.setEndDate(LocalDateTime.now());
+        rentToUpdate.setEndDateTime(LocalDateTime.now());
         rentRepository.save(rentToUpdate);
     }
 
     public void deleteRentById(Long id) throws ResourceNotFoundException, ActionNotAllowedException {
         Rent rentToDelete = rentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rent with id: " + id + " not found"));
-        if (rentToDelete.getEndDate() == null)
+        if (rentToDelete.getEndDateTime() == null)
             throw new ActionNotAllowedException("Rent isn't close");
         rentRepository.deleteById(id);
     }
@@ -138,7 +138,7 @@ public class RentService {
         if (!equipmentRepository.existsById(equipmentId)) {
             throw new ResourceNotFoundException("Equipment with id: " + equipmentId + " not found");
         }
-        if (rentRepository.findByEquipmentId(equipmentId).stream().anyMatch(r -> r.getEndDate() == null))
+        if (rentRepository.findByEquipmentId(equipmentId).stream().anyMatch(r -> r.getEndDateTime() == null))
             throw new ActionNotAllowedException("There is the rent, that doesn't closed");
         rentRepository.deleteByEquipmentId(equipmentId);
     }

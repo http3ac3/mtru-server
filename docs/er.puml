@@ -62,8 +62,8 @@ entity Subcategory {
 entity Rent {
   PK\t| **id** : //BIGINT//
   --
-    \t| **create_date** : //TIMESTAMP//
-    \t| end_date : //TIMESTAMP//
+    \t| **create_datetime** : //TIMESTAMP//
+    \t| end_datetime : //TIMESTAMP//
     \t| description : //VARCHAR(255)//
   --
   FK1\t| **equipment_id** : //BIGINT//
