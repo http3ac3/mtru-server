@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,11 @@ public class ResponsibleService {
     public List<Responsible> getResponsibleByDepartmentId(Long departmentId) throws ResourceNotFoundException {
         if (!departmentRepository.existsById(departmentId))
             throw new ResourceNotFoundException("Department with id '" + departmentId + "' not found");
-        return responsibleRepository.findByDepartmentId(departmentId);
+        List<Responsible> responsible = responsibleRepository.findByDepartmentId(departmentId);
+        if (responsible.isEmpty()) {
+            throw new ResourceNotFoundException("Responsible with department id '" + departmentId + "' not found");
+        }
+        return responsible;
     }
 
     public void createResponsible(Long departmentId, Responsible responsibleRequest)
@@ -105,7 +110,7 @@ public class ResponsibleService {
         int end = Math.min((start + paging.getPageSize()), responsible.size());
         List<Responsible> pageContent = responsible.subList(start, end);
         Page<Responsible> pageResponsible = new PageImpl<>(pageContent, paging, responsible.size());
-        PaginationMap<Responsible> paginationMap = new PaginationMap<>(pageResponsible, responsible);
+        PaginationMap<Responsible> paginationMap = new PaginationMap<>(pageResponsible, "responsible");
         return paginationMap.getPaginatedMap();
     }
 }

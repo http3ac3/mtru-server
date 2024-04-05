@@ -23,7 +23,6 @@ public class SecurityConfiguration {
     public UserDetailsService userDetailsService() {
         return new UserDetailsServiceImpl();
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
         throws Exception {
@@ -40,7 +39,6 @@ public class SecurityConfiguration {
                 .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
                 .build();
     }
-
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();

@@ -20,8 +20,8 @@ public class Equipment {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "image_data", nullable = false)
-    private byte[] imageData;
+    @Column(name = "image_data")
+    private String imageData;
 
     @Column(name = "description")
     private String description;
@@ -59,7 +59,7 @@ public class Equipment {
 
     public Equipment() {}
 
-    public Equipment(String inventoryNumber, String name, byte[] imageData,
+    public Equipment(String inventoryNumber, String name, String imageData,
                      String description, LocalDate commissioningDate, String commissioningActNumber,
                      LocalDate decommissioningDate, String decommissioningActNumber) {
         this.inventoryNumber = inventoryNumber;
@@ -96,11 +96,11 @@ public class Equipment {
         this.name = name;
     }
 
-    public byte[] getImageData() {
+    public String getImageData() {
         return imageData;
     }
 
-    public void setImageData(byte[] imageData) {
+    public void setImageData(String imageData) {
         this.imageData = imageData;
     }
 
