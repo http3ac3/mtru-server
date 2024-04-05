@@ -1,33 +1,66 @@
 package com.vlsu.inventory.service;
 
-import com.vlsu.inventory.model.Equipment;
-import com.vlsu.inventory.repository.EquipmentRepository;
+import com.vlsu.inventory.model.*;
+import com.vlsu.inventory.repository.*;
+import com.vlsu.inventory.security.UserDetailsImpl;
 import com.vlsu.inventory.util.PaginationMap;
+import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import static com.vlsu.inventory.repository.EquipmentRepository.*;
+
 @Service
 public class EquipmentService {
     private final EquipmentRepository equipmentRepository;
+    private final ResponsibleRepository responsibleRepository;
+    private final PlacementRepository placementRepository;
+    private final SubcategoryRepository subcategoryRepository;
+    private final UserRepository userRepository;
 
-    public EquipmentService(EquipmentRepository equipmentRepository) {
+    public EquipmentService(EquipmentRepository equipmentRepository, ResponsibleRepository responsibleRepository, PlacementRepository placementRepository, SubcategoryRepository subcategoryRepository, UserRepository userRepository) {
         this.equipmentRepository = equipmentRepository;
+        this.responsibleRepository = responsibleRepository;
+        this.placementRepository = placementRepository;
+        this.subcategoryRepository = subcategoryRepository;
+        this.userRepository = userRepository;
     }
 
-    public Map<String, Object> getAllEquipmentPageable(int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findAll(paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
+    public List<Equipment> getAllEquipmentByParams(
+            String inventoryNumber, String name, LocalDate commissioningDateFrom, LocalDate commissioningDateTo,
+            LocalDate decommissioningDateFrom, LocalDate decommissioningDateTo,
+            String commissioningActNumber, String decommissioningActNumber) {
+        Specification<Equipment> filter = (equipment, query, cb) -> cb.greaterThan(equipment.get("id"), 0);
+        if (inventoryNumber != null)
+            filter = filter.and(inventoryNumberStartsWith(inventoryNumber));
+        if (name != null)
+            filter = filter.and(nameStartsWith(name));
+        if (commissioningDateFrom != null)
+            filter = filter.and(commissioningDateFrom(commissioningDateFrom));
+        if (commissioningDateTo != null)
+            filter = filter.and(commissioningDateTo(commissioningDateTo));
+        if (decommissioningDateFrom != null)
+            filter = filter.and(decommissioningDateFrom(decommissioningDateFrom));
+        if (decommissioningDateTo != null)
+            filter = filter.and(decommissioningDateTo(decommissioningDateTo));
+        if (commissioningActNumber != null)
+            filter = filter.and(commissioningActNumberLike(commissioningActNumber));
+        if (decommissioningActNumber != null)
+            filter = filter.and(decommissioningActNumberLike(decommissioningActNumber));
+        return equipmentRepository.findAll(filter);
     }
 
     public Equipment getEquipmentById(Long id) throws ResourceNotFoundException {
@@ -36,125 +69,139 @@ public class EquipmentService {
                         "Equipment with id: " + id + " not found"));
     }
 
-    public Equipment getEquipmentByInventoryNumber(String inventoryNumber)
+    public List<Equipment> getEquipmentByInventoryNumber(String inventoryNumber)
             throws ResourceNotFoundException {
-        return equipmentRepository.findByInventoryNumber(inventoryNumber)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Equipment with inventory number: " + inventoryNumber + " not found"));
+        List<Equipment> equipment = equipmentRepository.findByInventoryNumberStartingWith(inventoryNumber);
+        if (equipment.isEmpty()) {
+            throw new ResourceNotFoundException("Equipment with inventory number '" + inventoryNumber +"' not found");
+        }
+        return equipment;
     }
 
-    public Map<String, Object> getEquipmentByInventoryNumberContainingPageable(
-            String inventoryNumberPart, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository
-                .findByInventoryNumberContaining(inventoryNumberPart, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
+    public List<Equipment> getEquipmentBySubcategoryId(Long subcategoryId) throws ResourceNotFoundException {
+        if (!subcategoryRepository.existsById(subcategoryId)) {
+            throw new ResourceNotFoundException("Subcategory with id '" + subcategoryId + "' not found");
+        }
+        List<Equipment> equipment = equipmentRepository.findBySubcategoryId(subcategoryId);
+        if (equipment.isEmpty()) {
+            throw new ResourceNotFoundException("Equipment with subcategory id '" + subcategoryId + "' not found");
+        }
+        return equipment;
+    }
+
+    public List<Equipment> getEquipmentByResponsibleId(Long responsibleId) throws ResourceNotFoundException {
+        if (!responsibleRepository.existsById(responsibleId)) {
+            throw new ResourceNotFoundException("Responsible with id '" + responsibleId + "' not found");
+        }
+        List<Equipment> equipment = equipmentRepository.findByResponsibleId(responsibleId);
+        if (equipment.isEmpty()) {
+            throw new ResourceNotFoundException("Equipment with responsible id '" + responsibleId + "' not found");
+        }
+        return equipment;
     }
 
 
-    public Map<String, Object> getEquipmentByNamePageable(String name, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findByName(name, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap
-                = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
+    public List<Equipment> getEquipmentByPlacementId(Long placementId) throws ResourceNotFoundException {
+        if (!placementRepository.existsById(placementId)) {
+            throw new ResourceNotFoundException("Placement with id '" + placementId + "' not found");
+        }
+        List<Equipment> equipment = equipmentRepository.findByPlacementId(placementId);
+        if (equipment.isEmpty()) {
+            throw new ResourceNotFoundException("Equipment with placement id '" + placementId + "' not found");
+        }
+        return equipment;
     }
 
-    public Map<String, Object> getEquipmentByNameContainingPageable(String name, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findByNameContaining(name, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
-    }
-
-    public Map<String, Object> getEquipmentByCommissioningDatePageable(LocalDate date, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findByCommissioningDate(date, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
-    }
-
-    public Map<String, Object> getEquipmentByCommissioningActNumberPageable(String actNumber, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findByCommissioningActNumber(actNumber, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
-    }
-
-    public Map<String, Object> getEquipmentByDecommissioningDatePageable(LocalDate date, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findByDecommissioningDate(date, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
-    }
-
-    public Map<String, Object> getEquipmentByDecommissioningActNumberPageable(String actNumber, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findByDecommissioningActNumber(actNumber, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
-    }
-
-    public Map<String, Object> getEquipmentByResponsibleIdPageable(Long responsibleId, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findByResponsibleId(responsibleId, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
-    }
-
-    public Map<String, Object> getEquipmentByPlacementIdPageable(Long placementId, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findByPlacementId(placementId, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
-    }
-
-    public Map<String, Object> getEquipmentBySubcategoryId(Long subcategoryId, int page, int size) {
-        Pageable paging = PageRequest.of(page, size);
-        Page<Equipment> pageEquipment = equipmentRepository.findBySubcategoryId(subcategoryId, paging);
-        List<Equipment> equipment = pageEquipment.getContent();
-        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageEquipment, equipment);
-        return paginationMap.getPaginatedMap();
-    }
-
-    public void createEquipment(Equipment equipment) {
+    public void createEquipment(Long subcategoryId, Long responsibleId, Long placementId, Equipment equipment,
+                                UserDetailsImpl principal)
+            throws ResourceNotFoundException, ActionNotAllowedException, IOException {
+        User user = userRepository.findByUsername(principal.getUsername()).get();
+        Responsible responsible = user.getResponsible();
+        if (user.isAdmin()) {
+            responsible = responsibleRepository.findById(responsibleId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Responsible with id '" + responsibleId + "' not found"));
+            if (!responsible.isFinanciallyResponsible()) {
+                throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
+                        + responsible.getFirstName() + " can't be financially responsible for equipment");
+            }
+        }
+        Placement placement = placementRepository.findById(placementId)
+                .orElseThrow(() -> new ResourceNotFoundException("Placement with id '" + placementId + "' not found"));
+        Subcategory subcategory = subcategoryRepository.findById(subcategoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Subcategory with id '" + subcategoryId + "' not found"));
+        equipment.setResponsible(responsible);
+        equipment.setPlacement(placement);
+        equipment.setSubcategory(subcategory);
         equipmentRepository.save(equipment);
     }
 
-    public void updateEquipmentById(Long id, Equipment equipment)
-            throws ResourceNotFoundException {
-        Equipment equipmentToUpdate = equipmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Equipment with id: " + id + " not found"));
+    public void updateEquipmentById(
+            Long id, Long subcategoryId, Long responsibleId,
+            Long placementId, Equipment equipmentRequest,
+            UserDetailsImpl principal)
+            throws ResourceNotFoundException, ActionNotAllowedException {
+        Equipment equipment = equipmentRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" + id + "' not found"));
+        User user = userRepository.findByUsername(principal.getUsername()).get();
+        Responsible responsible = user.getResponsible();
+        if (equipmentRequest.getResponsible() != responsible) {
+            throw new ActionNotAllowedException("Equipment with inventory number '" + equipment.getInventoryNumber() +
+                    " doesn't belong to " + responsible.getLastName()  + " " + responsible.getFirstName());
+        }
+        if (user.isAdmin()) {
+            responsible = responsibleRepository.findById(responsibleId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Responsible with id '" + responsibleId + "' not found"));
 
-        equipmentToUpdate.setInventoryNumber(equipment.getInventoryNumber());
-        equipmentToUpdate.setName(equipmentToUpdate.getName());
-        equipmentToUpdate.setImageData(equipment.getImageData());
-        equipmentToUpdate.setDescription(equipment.getDescription());
-        equipmentToUpdate.setCommissioningDate(equipment.getCommissioningDate());
-        equipmentToUpdate.setCommissioningActNumber(equipment.getCommissioningActNumber());
-        equipmentToUpdate.setDecommissioningDate(equipment.getDecommissioningDate());
-        equipmentToUpdate.setDecommissioningActNumber(equipment.getDecommissioningActNumber());
-
-        equipmentRepository.save(equipmentToUpdate);
+            if (!responsible.isFinanciallyResponsible()) {
+                throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
+                        + responsible.getFirstName() + " can't be financially responsible for equipment");
+            }
+        }
+        Placement placement = placementRepository.findById(placementId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Placement with id '" + placementId + "' not found"));
+        Subcategory subcategory = subcategoryRepository.findById(subcategoryId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Subcategory with id '" + subcategoryId + "' not found"));
+        equipment.setInventoryNumber(equipmentRequest.getInventoryNumber());
+        equipment.setName(equipmentRequest.getName());
+        equipment.setDescription(equipmentRequest.getDescription());
+        equipment.setCommissioningDate(equipmentRequest.getCommissioningDate());
+        equipment.setCommissioningActNumber(equipmentRequest.getCommissioningActNumber());
+        equipment.setDecommissioningDate(equipmentRequest.getDecommissioningDate());
+        equipment.setDecommissioningActNumber(equipmentRequest.getDecommissioningActNumber());
+        equipment.setResponsible(responsible);
+        equipment.setPlacement(placement);
+        equipment.setSubcategory(subcategory);
+        equipmentRepository.save(equipment);
     }
 
-    public void deleteEquipmentById(Long id)
-        throws ResourceNotFoundException, ResourceHasDependenciesException {
+    public void deleteEquipmentById(Long id, UserDetailsImpl principal)
+            throws ResourceNotFoundException, ResourceHasDependenciesException, ActionNotAllowedException {
+        User user = userRepository.findByUsername(principal.getUsername()).get();
+        Responsible responsible = user.getResponsible();
         Equipment equipmentToDelete = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment with id: " + id + " not found"));
+        if (!user.isAdmin() && equipmentToDelete.getResponsible() != responsible) {
+            throw new ActionNotAllowedException("Equipment doesn't belong to responsible "
+                    + responsible.getLastName() + " " + responsible.getLastName());
+        }
         if (!equipmentToDelete.getRents().isEmpty()) {
             throw new ResourceHasDependenciesException("Equipment with id: " + id + " has relations with rents");
         }
         equipmentRepository.deleteById(id);
+    }
+
+    public static Map<String, Object> getEquipmentByPage(List<Equipment> equipment, int page, int size)
+            throws Exception {
+        page = page - 1;
+        if (page < 0) {
+            throw new Exception("Страница не может быть меньше или равна 0");
+        }
+        Pageable paging = PageRequest.of(page, size);
+        int start = (int) paging.getOffset();
+        int end = Math.min((start + paging.getPageSize()), equipment.size());
+        List<Equipment> pageContent = equipment.subList(start, end);
+        Page<Equipment> pageResponsible = new PageImpl<>(pageContent, paging, equipment.size());
+        PaginationMap<Equipment> paginationMap = new PaginationMap<>(pageResponsible, "equipment");
+        return paginationMap.getPaginatedMap();
     }
 }
