@@ -50,7 +50,7 @@ public class DepartmentController {
     }
 
 
-    @PostMapping("/departments/new")
+    @PostMapping("/departments")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createNewDepartment(@RequestBody Department department) {
         try {

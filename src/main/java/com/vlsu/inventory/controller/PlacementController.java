@@ -48,7 +48,7 @@ public class PlacementController {
         }
     }
 
-    @PostMapping("/placements/new")
+    @PostMapping("/placements")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Placement> createPlacement(
             @RequestBody Placement placement) {

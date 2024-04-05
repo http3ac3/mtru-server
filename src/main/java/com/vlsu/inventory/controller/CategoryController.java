@@ -50,7 +50,7 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/categories/new")
+    @PostMapping("/categories")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createCategory(@RequestBody Category category) {
         try {
