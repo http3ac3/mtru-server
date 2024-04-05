@@ -17,8 +17,8 @@ public class UserController {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<HttpStatus> createUser(@RequestBody User user) throws ResourceNotFoundException {
-        userService.addUser(user);
+    public ResponseEntity<HttpStatus> createUser(@RequestBody User user, @RequestParam Long responsibleId) throws ResourceNotFoundException {
+        userService.addUser(user, responsibleId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

@@ -7,6 +7,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -75,7 +76,9 @@ public class User {
     public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
-
+    public boolean isAdmin() {
+        return roles.stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
+    }
     @Override
     public String toString() {
         return "User{" +
