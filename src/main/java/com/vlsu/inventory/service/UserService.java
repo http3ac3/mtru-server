@@ -7,6 +7,9 @@ import com.vlsu.inventory.repository.ResponsibleRepository;
 import com.vlsu.inventory.repository.RoleRepository;
 import com.vlsu.inventory.repository.UserRepository;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +21,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ResponsibleRepository responsibleRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, ResponsibleRepository responsibleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, ResponsibleRepository responsibleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.responsibleRepository = responsibleRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public User getUserById(Long id) throws ResourceNotFoundException {
@@ -36,7 +37,7 @@ public class UserService {
     public void addUser(User user, Long responsibleId) throws ResourceNotFoundException {
         Responsible responsible = responsibleRepository.findById(responsibleId)
                         .orElseThrow(() -> new ResourceNotFoundException("Responsible with id '" + responsibleId + "' not found"));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(user.getPassword());
         user.setResponsible(responsible);
         user.setRoles(user.getRoles());
         for (Role role : user.getRoles()) {
@@ -51,20 +52,14 @@ public class UserService {
     }
 
     public void changePasswordByUsername(String username, String password)
-            throws ResourceNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with username: " + username + " not found"
-                ));
+            throws UsernameNotFoundException {
+        User user = getByUsername(username);
         user.setPassword(password);
         userRepository.save(user);
     }
 
     public void deleteUserById(Long id) throws ResourceNotFoundException {
-        User userToDelete = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with id: " + id + " not found"
-                ));
+        User userToDelete = getUserById(id);
         List<Role> userRoles = roleRepository.findByUsersId(id);
         for (Role role : userRoles) {
             System.out.println(role);
@@ -72,4 +67,16 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
+    public UserDetailsService userDetailsService() {
+        return this::getByUsername;
+    }
+    public User getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return getByUsername(username);
+    }
+    public User getByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+    }
+
 }

@@ -16,12 +16,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/new")
-    public ResponseEntity<HttpStatus> createUser(@RequestBody User user, @RequestParam Long responsibleId) throws ResourceNotFoundException {
-        userService.addUser(user, responsibleId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteUserById(@PathVariable Long id) {
         try {
