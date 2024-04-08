@@ -3,6 +3,7 @@ package com.vlsu.inventory.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -25,6 +26,8 @@ public class Equipment {
 
     @Column(name = "description")
     private String description;
+    @Column(name = "initial_cost")
+    private BigDecimal initialCost;
 
     @Column(name = "commissioning_date", nullable = false)
     private LocalDate commissioningDate;
@@ -60,12 +63,13 @@ public class Equipment {
     public Equipment() {}
 
     public Equipment(String inventoryNumber, String name, String imageData,
-                     String description, LocalDate commissioningDate, String commissioningActNumber,
+                     String description, BigDecimal initialCost, LocalDate commissioningDate, String commissioningActNumber,
                      LocalDate decommissioningDate, String decommissioningActNumber) {
         this.inventoryNumber = inventoryNumber;
         this.name = name;
         this.imageData = imageData;
         this.description = description;
+        this.initialCost = initialCost;
         this.commissioningDate = commissioningDate;
         this.commissioningActNumber = commissioningActNumber;
         this.decommissioningDate = decommissioningDate;
@@ -102,6 +106,14 @@ public class Equipment {
 
     public void setImageData(String imageData) {
         this.imageData = imageData;
+    }
+
+    public BigDecimal getInitialCost() {
+        return initialCost;
+    }
+
+    public void setInitialCost(BigDecimal initialCost) {
+        this.initialCost = initialCost;
     }
 
     public String getDescription() {
@@ -186,6 +198,7 @@ public class Equipment {
                 "id=" + id +
                 ", inventoryNumber='" + inventoryNumber + '\'' +
                 ", name='" + name + '\'' +
+                ", initialCost='" + initialCost + '\'' +
                 ", description='" + description + '\'' +
                 ", commissioningDate=" + commissioningDate +
                 ", commissioningActNumber='" + commissioningActNumber + '\'' +

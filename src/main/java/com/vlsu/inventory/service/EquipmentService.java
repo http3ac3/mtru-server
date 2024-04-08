@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,8 @@ public class EquipmentService {
     }
 
     public List<Equipment> getAllEquipmentByParams(
-            String inventoryNumber, String name, LocalDate commissioningDateFrom, LocalDate commissioningDateTo,
+            String inventoryNumber, String name, BigDecimal initialCostFrom, BigDecimal initialCostTo,
+            LocalDate commissioningDateFrom, LocalDate commissioningDateTo,
             LocalDate decommissioningDateFrom, LocalDate decommissioningDateTo,
             String commissioningActNumber, String decommissioningActNumber) {
         Specification<Equipment> filter = (equipment, query, cb) -> cb.greaterThan(equipment.get("id"), 0);
@@ -48,6 +50,10 @@ public class EquipmentService {
             filter = filter.and(inventoryNumberStartsWith(inventoryNumber));
         if (name != null)
             filter = filter.and(nameStartsWith(name));
+        if (initialCostFrom != null)
+            filter = filter.and(initialCostFrom(initialCostFrom));
+        if (initialCostTo != null)
+            filter = filter.and(initialCostTo(initialCostTo));
         if (commissioningDateFrom != null)
             filter = filter.and(commissioningDateFrom(commissioningDateFrom));
         if (commissioningDateTo != null)
@@ -114,7 +120,7 @@ public class EquipmentService {
 
     public void createEquipment(Long subcategoryId, Long responsibleId, Long placementId, Equipment equipment,
                                 UserDetailsImpl principal)
-            throws ResourceNotFoundException, ActionNotAllowedException, IOException {
+            throws ResourceNotFoundException, ActionNotAllowedException {
         User user = userRepository.findByUsername(principal.getUsername()).get();
         Responsible responsible = user.getResponsible();
         if (user.isAdmin()) {
@@ -161,16 +167,16 @@ public class EquipmentService {
                         .orElseThrow(() -> new ResourceNotFoundException("Placement with id '" + placementId + "' not found"));
         Subcategory subcategory = subcategoryRepository.findById(subcategoryId)
                         .orElseThrow(() -> new ResourceNotFoundException("Subcategory with id '" + subcategoryId + "' not found"));
-        equipment.setInventoryNumber(equipmentRequest.getInventoryNumber());
-        equipment.setName(equipmentRequest.getName());
-        equipment.setDescription(equipmentRequest.getDescription());
-        equipment.setCommissioningDate(equipmentRequest.getCommissioningDate());
-        equipment.setCommissioningActNumber(equipmentRequest.getCommissioningActNumber());
-        equipment.setDecommissioningDate(equipmentRequest.getDecommissioningDate());
-        equipment.setDecommissioningActNumber(equipmentRequest.getDecommissioningActNumber());
+
+        equipment = new Equipment(equipmentRequest.getInventoryNumber(),  equipmentRequest.getName(),
+                equipmentRequest.getImageData(), equipmentRequest.getDescription(), equipmentRequest.getInitialCost(),
+                equipmentRequest.getCommissioningDate(), equipmentRequest.getCommissioningActNumber(),
+                equipmentRequest.getDecommissioningDate(), equipmentRequest.getDecommissioningActNumber());
+        equipment.setId(id);
         equipment.setResponsible(responsible);
         equipment.setPlacement(placement);
         equipment.setSubcategory(subcategory);
+
         equipmentRepository.save(equipment);
     }
 

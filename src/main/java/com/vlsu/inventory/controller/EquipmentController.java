@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,6 +30,8 @@ public class EquipmentController {
     public ResponseEntity<?> getAllEquipmentPageable(
             @RequestParam(required = false) String inventoryNumber,
             @RequestParam(required = false) String name,
+            @RequestParam(required = false) BigDecimal initialCostFrom,
+            @RequestParam(required = false) BigDecimal initialCostTo,
             @RequestParam(required = false) LocalDate commissioningDateFrom,
             @RequestParam(required = false) LocalDate commissioningDateTo,
             @RequestParam(required = false) LocalDate decommissioningDateFrom,
@@ -38,8 +41,8 @@ public class EquipmentController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "50") int size) {
         try {
-            List<Equipment> equipment = equipmentService.getAllEquipmentByParams(inventoryNumber, name, commissioningDateFrom,
-                    commissioningDateTo, decommissioningDateFrom, decommissioningDateTo,
+            List<Equipment> equipment = equipmentService.getAllEquipmentByParams(inventoryNumber, name, initialCostFrom, initialCostTo,
+                    commissioningDateFrom, commissioningDateTo, decommissioningDateFrom, decommissioningDateTo,
                     commissioningActNumber, decommissioningActNumber);
             return new ResponseEntity<>(EquipmentService.getEquipmentByPage(equipment, page, size), HttpStatus.OK);
         } catch (Exception exception) {

@@ -14,3 +14,6 @@ databaseChangeLog:
   - include:
       file: update-changeset/update-rent-datetime-field-names.sql
       relativeToChangelogFile: true
+  - include:
+      file: update-changeset/add-initial-cost-column-to-equipment.sql
+      relativeToChangelogFile: true

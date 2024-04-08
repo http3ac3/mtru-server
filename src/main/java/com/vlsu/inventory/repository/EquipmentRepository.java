@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,6 +19,15 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Jpa
     static Specification<Equipment> nameStartsWith(String name) {
         return (equipment, query, criteriaBuilder) -> criteriaBuilder.like(equipment.get("name"), name + "%");
     }
+
+    static Specification<Equipment> initialCostFrom(BigDecimal initialCost) {
+        return (equipment, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(equipment.get("initialCost"), initialCost);
+    }
+
+    static Specification<Equipment> initialCostTo(BigDecimal initialCost) {
+        return (equipment, query, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(equipment.get("initialCost"), initialCost);
+    }
+
 
     static Specification<Equipment> commissioningDateFrom(LocalDate from) {
         return (equipment, query, criteriaBuilder) -> criteriaBuilder
