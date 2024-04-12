@@ -48,8 +48,9 @@ public class SecurityConfiguration {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("auth/sign-in", "api/v1/users/current-user").permitAll()
-                        .requestMatchers("api/v1/rents/**", "api/v1/equipment/**", "api/v1/placements/**")
+                        .requestMatchers("auth/sign-in").permitAll()
+                        .requestMatchers("api/v1/rents/**", "api/v1/equipment/**", "api/v1/placements/**",
+                                "api/v1/users/current-user")
                         .authenticated()
                         .requestMatchers("api/v1/departments/**", "api/v1/responsible/**",
                                 "api/v1/categories/**", "api/v1/subcategories/**")
