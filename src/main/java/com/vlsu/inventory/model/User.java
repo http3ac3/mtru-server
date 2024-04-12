@@ -27,7 +27,7 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne()
     @JoinColumn(name = "responsible_id", referencedColumnName = "id", unique = true)
     private Responsible responsible;
 

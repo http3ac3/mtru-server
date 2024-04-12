@@ -25,4 +25,14 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
     }
+
+    @GetMapping("/current-user")
+    public ResponseEntity<?> getCurrentUser() {
+        try {
+            return ResponseEntity.ok(userService.getCurrentUser());
+        } catch (Exception exception) {
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }
+
+    }
 }

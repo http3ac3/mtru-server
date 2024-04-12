@@ -48,13 +48,13 @@ public class SecurityConfiguration {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("auth/sign-in").permitAll()
+                        .requestMatchers("auth/sign-in", "api/v1/users/current-user").permitAll()
                         .requestMatchers("api/v1/rents/**", "api/v1/equipment/**", "api/v1/placements/**")
                         .authenticated()
                         .requestMatchers("api/v1/departments/**", "api/v1/responsible/**",
                                 "api/v1/categories/**", "api/v1/subcategories/**")
                         .hasAnyRole("ADMIN", "LABHEAD")
-                        .requestMatchers("api/v1/users/**", "auth/register")
+                        .requestMatchers("auth/register")//"api/v1/users/**"
                         .hasRole("ADMIN")
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
