@@ -43,17 +43,14 @@ public class Equipment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsible_id", referencedColumnName = "id")
-    @JsonIgnore
     private Responsible responsible;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subcategory_id", referencedColumnName = "id")
-    @JsonIgnore
     private Subcategory subcategory;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "placement_id", referencedColumnName = "id")
-    @JsonIgnore
     private Placement placement;
 
     @OneToMany(mappedBy = "equipment")

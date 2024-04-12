@@ -18,7 +18,6 @@ public class Subcategory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
-    @JsonIgnore
     private Category category;
 
     @OneToMany(mappedBy = "subcategory")

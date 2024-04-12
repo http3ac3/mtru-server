@@ -34,7 +34,6 @@ public class Responsible {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", referencedColumnName = "id")
-    @JsonIgnore
     private Department department;
 
     @OneToMany(mappedBy = "responsible")
