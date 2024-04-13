@@ -32,7 +32,7 @@ public class Responsible {
     @Column(name = "is_financially_responsible", nullable = false)
     private boolean isFinanciallyResponsible;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "department_id", referencedColumnName = "id")
     private Department department;
 

@@ -1,5 +1,6 @@
 package com.vlsu.inventory.repository;
 
+import com.vlsu.inventory.model.Department;
 import com.vlsu.inventory.model.Responsible;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,5 +21,9 @@ public interface ResponsibleRepository extends JpaRepository<Responsible, Long>,
     }
     static Specification<Responsible> lastNameLike(String lastName) {
         return (responsible, query, criteriaBuilder) -> criteriaBuilder.like(responsible.get("lastName"), "%"+lastName+"%");
+    }
+
+    static Specification<Responsible> departmentIdEquals(Long departmentId) {
+        return (responsible, query, criteriaBuilder) -> criteriaBuilder.equal(responsible.get("department").get("id"), departmentId);
     }
 }

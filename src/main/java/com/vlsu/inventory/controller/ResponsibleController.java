@@ -1,5 +1,6 @@
 package com.vlsu.inventory.controller;
 
+import com.vlsu.inventory.model.Department;
 import com.vlsu.inventory.model.Responsible;
 import com.vlsu.inventory.service.ResponsibleService;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
@@ -24,13 +25,15 @@ public class ResponsibleController {
     public ResponseEntity<?> getAllResponsible(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) Boolean isFinanciallyResponsible,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "50") int size) {
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false) Boolean isFinanciallyResponsible,
+            @RequestParam(required = false) Long departmentId) {
         try {
             page = page - 1;
-            List<Responsible> responsibleList = responsibleService.getAllResponsible(firstName, lastName, isFinanciallyResponsible);
-            return new ResponseEntity<>(ResponsibleService.getResponsibleByPage(responsibleList, page, size), HttpStatus.OK);
+            List<Responsible> responsibleList = responsibleService.getAllResponsible(firstName, lastName, isFinanciallyResponsible, departmentId);
+            // return new ResponseEntity<>(ResponsibleService.getResponsibleByPage(responsibleList, page, size), HttpStatus.OK);
+            return new ResponseEntity<>(responsibleList, HttpStatus.OK);
         } catch (Exception exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -77,10 +80,9 @@ public class ResponsibleController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> updateResponsibleById(
             @PathVariable Long id,
-            @RequestParam Long departmentId,
             @RequestBody Responsible responsibleRequest) {
         try {
-            responsibleService.updateResponsibleById(id, departmentId, responsibleRequest);
+            responsibleService.updateResponsibleById(id, responsibleRequest.getDepartment().getId(), responsibleRequest);
             return new ResponseEntity<>("Данные были успешно обновлены", HttpStatus.OK);
         } catch (ResourceNotFoundException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);

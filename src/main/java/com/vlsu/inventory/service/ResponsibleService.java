@@ -29,7 +29,11 @@ public class ResponsibleService {
         this.departmentRepository = departmentRepository;
     }
 
-    public List<Responsible> getAllResponsible(String firstName, String lastName, Boolean isFinanciallyResponsible) {
+    public List<Responsible> getAllResponsible(
+            String firstName,
+            String lastName,
+            Boolean isFinanciallyResponsible,
+            Long departmentId) {
         Specification<Responsible> filter = (root, query, criteriaBuilder) -> criteriaBuilder.greaterThan(root.get("id"), 0);
         if (firstName != null) {
             filter = filter.and(ResponsibleRepository.firstNameLike(firstName));
@@ -39,6 +43,9 @@ public class ResponsibleService {
         }
         if (isFinanciallyResponsible != null) {
             filter = filter.and(ResponsibleRepository.isFinanciallyResponsible(isFinanciallyResponsible));
+        }
+        if (departmentId != null) {
+            filter = filter.and(ResponsibleRepository.departmentIdEquals(departmentId));
         }
         return responsibleRepository.findAll(filter);
     }
