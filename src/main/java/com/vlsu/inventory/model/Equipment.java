@@ -41,15 +41,15 @@ public class Equipment {
     @Column(name = "decommissioning_act_number")
     private String decommissioningActNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "responsible_id", referencedColumnName = "id")
     private Responsible responsible;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "subcategory_id", referencedColumnName = "id")
     private Subcategory subcategory;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "placement_id", referencedColumnName = "id")
     private Placement placement;
 
