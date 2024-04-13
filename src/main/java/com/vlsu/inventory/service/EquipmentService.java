@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.vlsu.inventory.repository.EquipmentRepository.*;
 
@@ -157,7 +158,7 @@ public class EquipmentService {
                         .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" + id + "' not found"));
         User user = userRepository.findByUsername(principal.getUsername()).get();
         Responsible responsible = user.getResponsible();
-        if (equipmentRequest.getResponsible() != responsible && !user.isAdmin()) {
+        if (!Objects.equals(equipmentRequest.getResponsible().getId(), responsible.getId()) && !user.isAdmin()) {
             throw new ActionNotAllowedException("Equipment with inventory number '" + equipment.getInventoryNumber() +
                     " doesn't belong to " + responsible.getLastName()  + " " + responsible.getFirstName());
         }
@@ -193,7 +194,7 @@ public class EquipmentService {
         Responsible responsible = user.getResponsible();
         Equipment equipmentToDelete = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment with id: " + id + " not found"));
-        if (!user.isAdmin() && equipmentToDelete.getResponsible() != responsible) {
+        if (!user.isAdmin() && !Objects.equals(equipmentToDelete.getResponsible().getId(), responsible.getId())) {
             throw new ActionNotAllowedException("Equipment doesn't belong to responsible "
                     + responsible.getLastName() + " " + responsible.getLastName());
         }
