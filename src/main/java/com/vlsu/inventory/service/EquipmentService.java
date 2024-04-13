@@ -44,7 +44,8 @@ public class EquipmentService {
             String inventoryNumber, String name, BigDecimal initialCostFrom, BigDecimal initialCostTo,
             LocalDate commissioningDateFrom, LocalDate commissioningDateTo,
             LocalDate decommissioningDateFrom, LocalDate decommissioningDateTo,
-            String commissioningActNumber, String decommissioningActNumber) {
+            String commissioningActNumber, String decommissioningActNumber,
+            Long subcategoryId, Long responsibleId, Long placementId) {
         Specification<Equipment> filter = (equipment, query, cb) -> cb.greaterThan(equipment.get("id"), 0);
         if (inventoryNumber != null)
             filter = filter.and(inventoryNumberStartsWith(inventoryNumber));
@@ -66,6 +67,12 @@ public class EquipmentService {
             filter = filter.and(commissioningActNumberLike(commissioningActNumber));
         if (decommissioningActNumber != null)
             filter = filter.and(decommissioningActNumberLike(decommissioningActNumber));
+        if (subcategoryId != null)
+            filter = filter.and(subcategoryIdEquals(subcategoryId));
+        if (responsibleId != null)
+            filter = filter.and(responsibleIdEquals(responsibleId));
+        if (placementId != null)
+            filter = filter.and(placementIdEquals(placementId));
         return equipmentRepository.findAll(filter);
     }
 
@@ -119,7 +126,7 @@ public class EquipmentService {
     }
 
     public void createEquipment(Long subcategoryId, Long responsibleId, Long placementId, Equipment equipment,
-                                UserDetailsImpl principal)
+                                User principal)
             throws ResourceNotFoundException, ActionNotAllowedException {
         User user = userRepository.findByUsername(principal.getUsername()).get();
         Responsible responsible = user.getResponsible();
@@ -144,13 +151,13 @@ public class EquipmentService {
     public void updateEquipmentById(
             Long id, Long subcategoryId, Long responsibleId,
             Long placementId, Equipment equipmentRequest,
-            UserDetailsImpl principal)
+            User principal)
             throws ResourceNotFoundException, ActionNotAllowedException {
         Equipment equipment = equipmentRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" + id + "' not found"));
         User user = userRepository.findByUsername(principal.getUsername()).get();
         Responsible responsible = user.getResponsible();
-        if (equipmentRequest.getResponsible() != responsible) {
+        if (equipmentRequest.getResponsible() != responsible && !user.isAdmin()) {
             throw new ActionNotAllowedException("Equipment with inventory number '" + equipment.getInventoryNumber() +
                     " doesn't belong to " + responsible.getLastName()  + " " + responsible.getFirstName());
         }
@@ -180,7 +187,7 @@ public class EquipmentService {
         equipmentRepository.save(equipment);
     }
 
-    public void deleteEquipmentById(Long id, UserDetailsImpl principal)
+    public void deleteEquipmentById(Long id, User principal)
             throws ResourceNotFoundException, ResourceHasDependenciesException, ActionNotAllowedException {
         User user = userRepository.findByUsername(principal.getUsername()).get();
         Responsible responsible = user.getResponsible();

@@ -1,6 +1,7 @@
 package com.vlsu.inventory.controller;
 
 import com.vlsu.inventory.model.Equipment;
+import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.security.UserDetailsImpl;
 import com.vlsu.inventory.service.EquipmentService;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
@@ -38,13 +39,16 @@ public class EquipmentController {
             @RequestParam(required = false) LocalDate decommissioningDateTo,
             @RequestParam(required = false) String commissioningActNumber,
             @RequestParam(required = false) String decommissioningActNumber,
+            @RequestParam(required = false) Long subcategoryId,
+            @RequestParam(required = false) Long responsibleId,
+            @RequestParam(required = false) Long placementId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "50") int size) {
         try {
             List<Equipment> equipment = equipmentService.getAllEquipmentByParams(inventoryNumber, name, initialCostFrom, initialCostTo,
                     commissioningDateFrom, commissioningDateTo, decommissioningDateFrom, decommissioningDateTo,
-                    commissioningActNumber, decommissioningActNumber);
-            return new ResponseEntity<>(EquipmentService.getEquipmentByPage(equipment, page, size), HttpStatus.OK);
+                    commissioningActNumber, decommissioningActNumber, subcategoryId, responsibleId, placementId);
+            return new ResponseEntity<>(equipment, HttpStatus.OK);
         } catch (Exception exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -109,20 +113,18 @@ public class EquipmentController {
     @PostMapping("/equipment")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
     public ResponseEntity<?> createEquipment(
-            @RequestParam Long subcategoryId,
-            @RequestParam(required = false) Long responsibleId,
-            @RequestParam Long placementId,
             @RequestBody Equipment equipment,
-            @AuthenticationPrincipal UserDetailsImpl principal) {
-        System.out.println(principal.getUsername());
+            @AuthenticationPrincipal User principal) {
         try {
-            equipmentService.createEquipment(subcategoryId, responsibleId, placementId, equipment, principal);
+            equipmentService.createEquipment(equipment.getSubcategory().getId(),
+                    equipment.getResponsible().getId(), equipment.getPlacement().getId(), equipment, principal);
             return new ResponseEntity<>(equipment, HttpStatus.CREATED);
         } catch (ResourceNotFoundException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
         } catch (ActionNotAllowedException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.LOCKED);
         } catch (Exception exception) {
+            System.out.println(exception.getMessage());
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -131,13 +133,11 @@ public class EquipmentController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
     public ResponseEntity<String> updateEquipmentById(
             @PathVariable Long id,
-            @RequestParam Long subcategoryId,
-            @RequestParam(required = false) Long responsibleId,
-            @RequestParam Long placementId,
             @RequestBody Equipment equipment,
-            @AuthenticationPrincipal UserDetailsImpl principal) {
+            @AuthenticationPrincipal User principal) {
         try {
-            equipmentService.updateEquipmentById(id, subcategoryId, responsibleId, placementId, equipment, principal);
+            equipmentService.updateEquipmentById(id, equipment.getSubcategory().getId(),
+                    equipment.getResponsible().getId(), equipment.getPlacement().getId(), equipment, principal);
             return new ResponseEntity<>("Данные были успешно обновлены", HttpStatus.OK);
         } catch (ResourceNotFoundException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
@@ -152,7 +152,7 @@ public class EquipmentController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
     public ResponseEntity<String> deleteEquipmentById(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetailsImpl principal) {
+            @AuthenticationPrincipal User principal) {
         try {
             equipmentService.deleteEquipmentById(id, principal);
             return new ResponseEntity<>("Данные были успешно удалены", HttpStatus.NO_CONTENT);

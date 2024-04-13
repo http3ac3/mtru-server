@@ -58,6 +58,21 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Jpa
         return (equipment, query, criteriaBuilder) -> criteriaBuilder
                 .like(equipment.get("decommissioningActNumber"), act + "%");
     }
+
+    static Specification<Equipment> subcategoryIdEquals(Long subcategoryId) {
+        return (equipment, query, criteriaBuilder) -> criteriaBuilder
+                .equal(equipment.get("subcategory").get("id"), subcategoryId);
+    }
+
+    static Specification<Equipment> responsibleIdEquals(Long responsibleId) {
+        return (equipment, query, criteriaBuilder) -> criteriaBuilder
+                .equal(equipment.get("responsible").get("id"), responsibleId);
+    }
+
+    static Specification<Equipment> placementIdEquals(Long placementId) {
+        return (equipment, query, criteriaBuilder) -> criteriaBuilder
+                .equal(equipment.get("placement").get("id"), placementId);
+    }
     List<Equipment> findByResponsibleId(Long responsibleId);
     List<Equipment> findByPlacementId(Long placementId);
     List<Equipment> findBySubcategoryId(Long subcategoryId);

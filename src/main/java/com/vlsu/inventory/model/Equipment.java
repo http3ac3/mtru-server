@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -55,7 +56,7 @@ public class Equipment {
 
     @OneToMany(mappedBy = "equipment")
     @JsonIgnore
-    private List<Rent> rents;
+    private List<Rent> rents = new ArrayList<>();
 
     public Equipment() {}
 
