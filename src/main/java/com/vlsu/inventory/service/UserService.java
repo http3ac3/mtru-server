@@ -28,6 +28,10 @@ public class UserService {
         this.responsibleRepository = responsibleRepository;
     }
 
+    public List<User> getAll() {
+        return userRepository.findAll();
+    }
+
     public User getUserById(Long id) throws ResourceNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(

@@ -33,6 +33,10 @@ public class UserController {
         } catch (Exception exception) {
             return ResponseEntity.badRequest().body(exception.getMessage());
         }
+    }
 
+    @GetMapping()
+    public ResponseEntity<?> getAll() {
+        return ResponseEntity.ok(userService.getAll());
     }
 }
