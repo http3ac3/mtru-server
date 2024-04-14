@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1")
@@ -28,10 +29,16 @@ public class ResponsibleController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(required = false) Boolean isFinanciallyResponsible,
-            @RequestParam(required = false) Long departmentId) {
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Boolean hasAccount) {
         try {
             page = page - 1;
             List<Responsible> responsibleList = responsibleService.getAllResponsible(firstName, lastName, isFinanciallyResponsible, departmentId);
+
+            if (hasAccount != null && !hasAccount) {
+                List<Responsible> withoutAccountResponsible = responsibleList.stream().filter(r -> r.getUser() == null).toList();
+                return new ResponseEntity<>(withoutAccountResponsible, HttpStatus.OK);
+            }
             // return new ResponseEntity<>(ResponsibleService.getResponsibleByPage(responsibleList, page, size), HttpStatus.OK);
             return new ResponseEntity<>(responsibleList, HttpStatus.OK);
         } catch (Exception exception) {
