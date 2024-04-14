@@ -29,6 +29,18 @@ public interface RentRepository extends JpaRepository<Rent, Long>, JpaSpecificat
     static Specification<Rent> endDateTimeTo(LocalDateTime dateTime) {
         return (rent, query, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(rent.get("endDateTime"), dateTime);
     }
+
+    static Specification<Rent> equipmentIdEquals(Long equipmentId) {
+        return (rent, query, criteriaBuilder) -> criteriaBuilder.equal(rent.get("equipment").get("id"), equipmentId);
+    }
+
+    static Specification<Rent> responsibleIdEquals(Long responsibleId) {
+        return (rent, query, criteriaBuilder) -> criteriaBuilder.equal(rent.get("responsible").get("id"), responsibleId);
+    }
+
+    static Specification<Rent> placementsIdEquals(Long placementId) {
+        return (rent, query, criteriaBuilder) -> criteriaBuilder.equal(rent.get("placement").get("id"), placementId);
+    }
     List<Rent> findByEquipmentId(Long equipmentId);
     List<Rent> findByResponsibleId(Long responsibleId);
     List<Rent> findByPlacementId(Long placementId);

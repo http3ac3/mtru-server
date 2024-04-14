@@ -1,6 +1,7 @@
 package com.vlsu.inventory.controller;
 
 import com.vlsu.inventory.model.Rent;
+import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.security.UserDetailsImpl;
 import com.vlsu.inventory.service.RentService;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
@@ -31,27 +32,27 @@ public class RentController {
             @RequestParam(required = false) LocalDateTime endDateTimeFrom,
             @RequestParam(required = false) LocalDateTime endDateTimeTo,
             @RequestParam(required = false) Boolean isClosed,
+            @RequestParam(required = false) Long equipmentId,
+            @RequestParam(required = false) Long responsibleId,
+            @RequestParam(required = false) Long placementId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "50") int size) {
         try {
-            List<Rent> rents = rentService.getAllRentsByParams(createDateTimeFrom, createDateTimeTo, endDateTimeFrom, endDateTimeTo, isClosed);
-            return new ResponseEntity<>(RentService.getRentsPageable(rents, page, size), HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+            List<Rent> rents = rentService.getAllRentsByParams(
+                    createDateTimeFrom, createDateTimeTo, endDateTimeFrom, endDateTimeTo, isClosed, equipmentId, responsibleId, placementId);
+            return new ResponseEntity<>(rents, HttpStatus.OK);
         } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(exception   .getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping("/rents/my")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getRentsOfUser(
-            @AuthenticationPrincipal UserDetailsImpl principal,
+            @AuthenticationPrincipal User principal,
             @RequestParam Boolean isClosed) {
         try {
             return new ResponseEntity<>(rentService.getRentsByUser(principal, isClosed), HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -108,12 +109,12 @@ public class RentController {
     @PostMapping("/rents")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> createRent(
-            @RequestParam Long equipmentId,
-            @RequestParam Long placementId,
-            @AuthenticationPrincipal UserDetailsImpl principal,
+            @AuthenticationPrincipal User principal,
             @RequestBody Rent rent) {
+        System.out.println(rent.getPlacement().getId());
         try {
-            rentService.createRent(equipmentId, placementId, principal, rent);
+            rentService.createRent(rent.getEquipment().getId(), rent.getPlacement().getId(), principal, rent);
+
             return new ResponseEntity<>(rent, HttpStatus.CREATED);
         } catch (ResourceNotFoundException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);

@@ -47,7 +47,10 @@ public class RentService {
             LocalDateTime createDateTimeTo,
             LocalDateTime endDateTimeFrom,
             LocalDateTime endDateTimeTo,
-            Boolean isClosed) throws ResourceNotFoundException {
+            Boolean isClosed,
+            Long equipmentId,
+            Long responsibleId,
+            Long placementId) {
         Specification<Rent> filter = (root, query, criteriaBuilder) -> criteriaBuilder.greaterThan(root.get("id"), 0);
         if (isClosed != null)
             filter = (isClosed) ? filter.and(endDateIsNotNull()) : filter.and(endDateIsNull());
@@ -59,9 +62,14 @@ public class RentService {
             filter = filter.and(endDateTimeFrom(endDateTimeFrom));
         if (endDateTimeTo != null)
             filter = filter.and(endDateTimeTo(endDateTimeTo));
-        List<Rent> rents = rentRepository.findAll(filter);
-        if (rents.isEmpty()) throw new ResourceNotFoundException("Nothing found");
-        return rents;
+        if (equipmentId != null)
+            filter = filter.and(equipmentIdEquals(equipmentId));
+        if (responsibleId != null)
+            filter = filter.and(responsibleIdEquals(responsibleId));
+        if (placementId != null)
+            filter = filter.and(placementsIdEquals(placementId));
+
+        return rentRepository.findAll(filter);
     }
 
     public List<Rent> getRentsByEquipmentId(Long equipmentId) throws ResourceNotFoundException {
@@ -88,20 +96,17 @@ public class RentService {
         return rents;
     }
 
-    public List<Rent> getRentsByUser(UserDetailsImpl principal, Boolean isClosed) throws ResourceNotFoundException {
+    public List<Rent> getRentsByUser(User principal, Boolean isClosed) {
         Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
         List<Rent> rents = rentRepository.findByResponsibleId(responsible.getId());
-        if (rents.isEmpty()) throw new ResourceNotFoundException("Nothing was found");
-
         if (isClosed)
             rents = rents.stream().filter(r -> r.getEndDateTime() != null).collect(Collectors.toList());
         else
             rents = rents.stream().filter(r -> r.getEndDateTime() == null).collect(Collectors.toList());
-
         return rents;
     }
 
-    public void createRent(Long equipmentId, Long placementId, UserDetailsImpl principal, Rent rent)
+    public void createRent(Long equipmentId, Long placementId, User principal, Rent rent)
             throws ResourceNotFoundException, ActionNotAllowedException {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                         .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" + equipmentId + "' not found"));
