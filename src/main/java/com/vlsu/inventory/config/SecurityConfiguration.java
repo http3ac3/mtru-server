@@ -53,7 +53,7 @@ public class SecurityConfiguration {
                         .requestMatchers("api/v1/departments/**", "api/v1/responsible/**",
                                 "api/v1/categories/**", "api/v1/subcategories/**")
                         .hasAnyRole("ADMIN", "LABHEAD")
-                        .requestMatchers("auth/register")//"api/v1/users/**"
+                        .requestMatchers("auth/register", "/api/v1/users/**")
                         .hasRole("ADMIN")
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
