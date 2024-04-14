@@ -38,14 +38,10 @@ public class PlacementController {
     }
 
     @GetMapping("/placements")
-    public ResponseEntity<Placement> getPlacementByName(
+    public ResponseEntity<List<Placement>> getPlacementByName(
             @RequestParam String name) {
-        try {
-            Placement placement = placementService.getPlacementByName(name);
-            return new ResponseEntity<>(placement, HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        List<Placement> placements = placementService.getPlacementByName(name);
+        return new ResponseEntity<>(placements, HttpStatus.OK);
     }
 
     @PostMapping("/placements")

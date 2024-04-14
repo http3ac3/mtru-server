@@ -25,10 +25,8 @@ public class PlacementService {
                         "Placement with id: " + id + " not found"));
     }
 
-    public Placement getPlacementByName(String name) throws ResourceNotFoundException {
-        return placementRepository.findByName(name)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Placement name id: " + name + " not found"));
+    public List<Placement> getPlacementByName(String name)  {
+        return placementRepository.findByNameStartingWith(name);
     }
 
     public void createPlacement(Placement placement) {
