@@ -7,6 +7,9 @@ import com.vlsu.inventory.repository.ResponsibleRepository;
 import com.vlsu.inventory.repository.RoleRepository;
 import com.vlsu.inventory.repository.UserRepository;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,17 +19,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class UserService {
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final ResponsibleRepository responsibleRepository;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, ResponsibleRepository responsibleRepository) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.responsibleRepository = responsibleRepository;
-    }
+    UserRepository userRepository;
+    RoleRepository roleRepository;
+    ResponsibleRepository responsibleRepository;
 
     public List<User> getAll() {
         return userRepository.findAll();

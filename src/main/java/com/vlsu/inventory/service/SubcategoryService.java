@@ -6,19 +6,20 @@ import com.vlsu.inventory.repository.CategoryRepository;
 import com.vlsu.inventory.repository.SubcategoryRepository;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class SubcategoryService {
-    private final SubcategoryRepository subcategoryRepository;
-    private final CategoryRepository categoryRepository;
 
-    public SubcategoryService(SubcategoryRepository subcategoryRepository, CategoryRepository categoryRepository, CategoryRepository categoryRepository1) {
-        this.subcategoryRepository = subcategoryRepository;
-        this.categoryRepository = categoryRepository1;
-    }
+    SubcategoryRepository subcategoryRepository;
+    CategoryRepository categoryRepository;
 
     public List<Subcategory> getAllSubcategories() {
         return subcategoryRepository.findAll();

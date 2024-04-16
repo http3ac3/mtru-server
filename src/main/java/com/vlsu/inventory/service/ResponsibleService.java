@@ -8,6 +8,9 @@ import com.vlsu.inventory.repository.ResponsibleRepository;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -19,15 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class ResponsibleService {
-    private final ResponsibleRepository responsibleRepository;
-    private final DepartmentRepository departmentRepository;
 
-    public ResponsibleService(ResponsibleRepository responsibleRepository, DepartmentRepository departmentRepository) {
-        this.responsibleRepository = responsibleRepository;
-        this.departmentRepository = departmentRepository;
-    }
+    ResponsibleRepository responsibleRepository;
+    DepartmentRepository departmentRepository;
 
     public List<Responsible> getAllResponsible(
             String firstName,

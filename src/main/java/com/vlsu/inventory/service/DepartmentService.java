@@ -4,17 +4,19 @@ import com.vlsu.inventory.model.Department;
 import com.vlsu.inventory.repository.DepartmentRepository;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class DepartmentService {
-    private final DepartmentRepository departmentRepository;
 
-    public DepartmentService(DepartmentRepository departmentRepository) {
-        this.departmentRepository = departmentRepository;
-    }
+    DepartmentRepository departmentRepository;
 
     public List<Department> getAllDepartments() {
         return departmentRepository.findAll();

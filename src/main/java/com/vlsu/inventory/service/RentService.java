@@ -6,6 +6,9 @@ import com.vlsu.inventory.security.UserDetailsImpl;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -20,21 +23,16 @@ import java.util.stream.Collectors;
 
 import static com.vlsu.inventory.repository.RentRepository.*;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class RentService {
-    private final RentRepository rentRepository;
-    private final EquipmentRepository equipmentRepository;
-    private final ResponsibleRepository responsibleRepository;
-    private final PlacementRepository placementRepository;
-    private final UserRepository userRepository;
 
-    public RentService(RentRepository rentRepository, EquipmentRepository equipmentRepository, ResponsibleRepository responsibleRepository, PlacementRepository placementRepository, UserRepository userRepository) {
-        this.rentRepository = rentRepository;
-        this.equipmentRepository = equipmentRepository;
-        this.responsibleRepository = responsibleRepository;
-        this.placementRepository = placementRepository;
-        this.userRepository = userRepository;
-    }
+    RentRepository rentRepository;
+    EquipmentRepository equipmentRepository;
+    ResponsibleRepository responsibleRepository;
+    PlacementRepository placementRepository;
+    UserRepository userRepository;
 
     public Rent getRentById(Long id) throws ResourceNotFoundException {
         return rentRepository.findById(id)

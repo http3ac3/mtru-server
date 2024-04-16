@@ -7,6 +7,9 @@ import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -25,21 +28,16 @@ import java.util.Objects;
 
 import static com.vlsu.inventory.repository.EquipmentRepository.*;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 public class EquipmentService {
-    private final EquipmentRepository equipmentRepository;
-    private final ResponsibleRepository responsibleRepository;
-    private final PlacementRepository placementRepository;
-    private final SubcategoryRepository subcategoryRepository;
-    private final UserRepository userRepository;
 
-    public EquipmentService(EquipmentRepository equipmentRepository, ResponsibleRepository responsibleRepository, PlacementRepository placementRepository, SubcategoryRepository subcategoryRepository, UserRepository userRepository) {
-        this.equipmentRepository = equipmentRepository;
-        this.responsibleRepository = responsibleRepository;
-        this.placementRepository = placementRepository;
-        this.subcategoryRepository = subcategoryRepository;
-        this.userRepository = userRepository;
-    }
+    EquipmentRepository equipmentRepository;
+    ResponsibleRepository responsibleRepository;
+    PlacementRepository placementRepository;
+    SubcategoryRepository subcategoryRepository;
+    UserRepository userRepository;
 
     public List<Equipment> getAllEquipmentByParams(
             String inventoryNumber, String name, BigDecimal initialCostFrom, BigDecimal initialCostTo,
