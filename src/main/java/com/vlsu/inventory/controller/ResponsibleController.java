@@ -5,6 +5,9 @@ import com.vlsu.inventory.model.Responsible;
 import com.vlsu.inventory.service.ResponsibleService;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,14 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RestController
 @RequestMapping("api/v1")
 public class ResponsibleController {
-    private final ResponsibleService responsibleService;
 
-    public ResponsibleController(ResponsibleService responsibleService) {
-        this.responsibleService = responsibleService;
-    }
+    ResponsibleService responsibleService;
 
     @GetMapping("/responsible")
     public ResponseEntity<?> getAllResponsible(

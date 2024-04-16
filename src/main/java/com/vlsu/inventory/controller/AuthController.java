@@ -5,6 +5,9 @@ import com.vlsu.inventory.dto.RegisterRequest;
 import com.vlsu.inventory.dto.SignInRequest;
 import com.vlsu.inventory.service.AuthenticationService;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,14 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private final AuthenticationService authenticationService;
-
-    public AuthController(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
-    }
+    AuthenticationService authenticationService;
 
     @PostMapping("/sign-in")
     public JwtAuthResponse signIn(@RequestBody SignInRequest request) {

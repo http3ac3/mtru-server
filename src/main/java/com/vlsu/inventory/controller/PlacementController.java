@@ -4,6 +4,9 @@ import com.vlsu.inventory.model.Placement;
 import com.vlsu.inventory.service.PlacementService;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,14 +14,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RestController
 @RequestMapping("api/v1")
 public class PlacementController {
-    private final PlacementService placementService;
 
-    public PlacementController(PlacementService placementService) {
-        this.placementService = placementService;
-    }
+    PlacementService placementService;
 
     @GetMapping("/placements/all")
     public ResponseEntity<List<Placement>> getAllPlacements() {
