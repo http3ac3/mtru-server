@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Objects;
 
 @NoArgsConstructor
 @Getter
@@ -38,7 +37,7 @@ public class Responsible {
     @Column(name = "is_financially_responsible", nullable = false)
     private boolean isFinanciallyResponsible;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id", referencedColumnName = "id")
     private Department department;
 

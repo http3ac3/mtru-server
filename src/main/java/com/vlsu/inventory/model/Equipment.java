@@ -16,6 +16,24 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "equipment")
+@NamedEntityGraph(
+        name = "Equipment.placement.responsible.subcategory",
+        attributeNodes = {
+                @NamedAttributeNode(value = "subcategory", subgraph = "Subcategory.category"),
+                @NamedAttributeNode(value = "responsible", subgraph = "Responsible.department"),
+                @NamedAttributeNode(value = "placement")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "Responsible.department",
+                        attributeNodes = @NamedAttributeNode(value = "department")
+                ),
+                @NamedSubgraph(
+                        name = "Subcategory.category",
+                        attributeNodes = @NamedAttributeNode(value = "category")
+                )
+        }
+)
 public class Equipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,7 +78,7 @@ public class Equipment {
     @JoinColumn(name = "placement_id", referencedColumnName = "id")
     private Placement placement;
 
-    @OneToMany(mappedBy = "equipment")
+    @OneToMany(mappedBy = "equipment", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Rent> rents = new ArrayList<>();
 

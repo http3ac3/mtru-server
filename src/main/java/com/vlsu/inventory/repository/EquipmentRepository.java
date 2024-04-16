@@ -2,6 +2,7 @@ package com.vlsu.inventory.repository;
 
 import com.vlsu.inventory.model.Equipment;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -10,6 +11,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface EquipmentRepository extends JpaRepository<Equipment, Long>, JpaSpecificationExecutor<Equipment> {
+    @Override
+    @EntityGraph(value = "Equipment.placement.responsible.subcategory")
+    List<Equipment> findAll(Specification<Equipment> spec);
     List<Equipment> findByInventoryNumberStartingWith(String inventoryNumber);
     static Specification<Equipment> inventoryNumberStartsWith(String inventoryNumber) {
         return (equipment, query, criteriaBuilder) -> criteriaBuilder

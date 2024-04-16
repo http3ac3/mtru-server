@@ -21,6 +21,17 @@ import java.util.stream.Collectors;
 @Setter
 @Entity
 @Table(name = "users")
+@NamedEntityGraph(
+        name = "User.responsible.roles",
+        attributeNodes = {
+                @NamedAttributeNode(value = "roles"),
+                @NamedAttributeNode(value = "responsible", subgraph = "User.responsible")
+        },
+        subgraphs = @NamedSubgraph(
+                name = "User.responsible",
+                attributeNodes = @NamedAttributeNode(value = "department")
+        )
+)
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
