@@ -2,10 +2,16 @@ package com.vlsu.inventory.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Objects;
 
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "responsible")
 public class Responsible {
@@ -48,9 +54,6 @@ public class Responsible {
     @JsonIgnore
     private User user;
 
-
-    public Responsible() {}
-
     public Responsible(String firstName, String lastName, String patronymic, String position, String phoneNumber, boolean isFinanciallyResponsible) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -58,119 +61,5 @@ public class Responsible {
         this.position = position;
         this.phoneNumber = phoneNumber;
         this.isFinanciallyResponsible = isFinanciallyResponsible;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPatronymic() {
-        return patronymic;
-    }
-
-    public void setPatronymic(String patronymic) {
-        this.patronymic = patronymic;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public boolean isFinanciallyResponsible() {
-        return isFinanciallyResponsible;
-    }
-
-    public void setFinanciallyResponsible(boolean financiallyResponsible) {
-        isFinanciallyResponsible = financiallyResponsible;
-    }
-
-    public Department getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
-
-    public List<Equipment> getEquipment() {
-        return equipment;
-    }
-
-    public void setEquipment(List<Equipment> equipment) {
-        this.equipment = equipment;
-    }
-
-    public List<Rent> getRents() {
-        return rents;
-    }
-
-    public void setRents(List<Rent> rents) {
-        this.rents = rents;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    @Override
-    public String toString() {
-        return "Responsible{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", patronymic='" + patronymic + '\'' +
-                ", position='" + position + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", isFinanciallyResponsible=" + isFinanciallyResponsible +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Responsible that = (Responsible) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

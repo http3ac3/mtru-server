@@ -2,12 +2,18 @@ package com.vlsu.inventory.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "equipment")
 public class Equipment {
@@ -58,8 +64,6 @@ public class Equipment {
     @JsonIgnore
     private List<Rent> rents = new ArrayList<>();
 
-    public Equipment() {}
-
     public Equipment(String inventoryNumber, String name, String imageData,
                      String description, BigDecimal initialCost, LocalDate commissioningDate, String commissioningActNumber,
                      LocalDate decommissioningDate, String decommissioningActNumber) {
@@ -74,134 +78,7 @@ public class Equipment {
         this.decommissioningActNumber = decommissioningActNumber;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getInventoryNumber() {
-        return inventoryNumber;
-    }
-
-    public void setInventoryNumber(String inventoryNumber) {
-        this.inventoryNumber = inventoryNumber;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getImageData() {
-        return imageData;
-    }
-
-    public void setImageData(String imageData) {
-        this.imageData = imageData;
-    }
-
-    public BigDecimal getInitialCost() {
-        return initialCost;
-    }
-
-    public void setInitialCost(BigDecimal initialCost) {
-        this.initialCost = initialCost;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDate getCommissioningDate() {
-        return commissioningDate;
-    }
-
-    public void setCommissioningDate(LocalDate commissioningDate) {
-        this.commissioningDate = commissioningDate;
-    }
-
-    public String getCommissioningActNumber() {
-        return commissioningActNumber;
-    }
-
-    public void setCommissioningActNumber(String commissioningActNumber) {
-        this.commissioningActNumber = commissioningActNumber;
-    }
-
-    public LocalDate getDecommissioningDate() {
-        return decommissioningDate;
-    }
-
-    public void setDecommissioningDate(LocalDate decommissioningDate) {
-        this.decommissioningDate = decommissioningDate;
-    }
-
-    public String getDecommissioningActNumber() {
-        return decommissioningActNumber;
-    }
-
-    public void setDecommissioningActNumber(String decommissioningActNumber) {
-        this.decommissioningActNumber = decommissioningActNumber;
-    }
-
-    public Responsible getResponsible() {
-        return responsible;
-    }
-
-    public void setResponsible(Responsible responsible) {
-        this.responsible = responsible;
-    }
-
-    public Subcategory getSubcategory() {
-        return subcategory;
-    }
-
-    public void setSubcategory(Subcategory subcategory) {
-        this.subcategory = subcategory;
-    }
-
-    public Placement getPlacement() {
-        return placement;
-    }
-
-    public void setPlacement(Placement placement) {
-        this.placement = placement;
-    }
-
-    public List<Rent> getRents() {
-        return rents;
-    }
-
-    public void setRents(List<Rent> rents) {
-        this.rents = rents;
-    }
-
     public boolean isAlreadyRented() {
         return rents.stream().anyMatch(r -> r.getEndDateTime() == null);
-    }
-
-    @Override
-    public String toString() {
-        return "Equipment{" +
-                "id=" + id +
-                ", inventoryNumber='" + inventoryNumber + '\'' +
-                ", name='" + name + '\'' +
-                ", initialCost='" + initialCost + '\'' +
-                ", description='" + description + '\'' +
-                ", commissioningDate=" + commissioningDate +
-                ", commissioningActNumber='" + commissioningActNumber + '\'' +
-                ", decommissioningDate=" + decommissioningDate +
-                ", decommissioningActNumber='" + decommissioningActNumber + '\'' +
-                '}';
     }
 }
