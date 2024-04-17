@@ -1,19 +1,20 @@
 package com.vlsu.inventory.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@NoArgsConstructor
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "equipment")
 @NamedEntityGraph(
@@ -24,14 +25,6 @@ import java.util.List;
                 @NamedAttributeNode(value = "placement")
         },
         subgraphs = {
-                @NamedSubgraph(
-                        name = "Responsible.department",
-                        attributeNodes = @NamedAttributeNode(value = "department")
-                ),
-                @NamedSubgraph(
-                        name = "Subcategory.category",
-                        attributeNodes = @NamedAttributeNode(value = "category")
-                )
         }
 )
 public class Equipment {
@@ -66,15 +59,15 @@ public class Equipment {
     @Column(name = "decommissioning_act_number")
     private String decommissioningActNumber;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsible_id", referencedColumnName = "id")
     private Responsible responsible;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subcategory_id", referencedColumnName = "id")
     private Subcategory subcategory;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "placement_id", referencedColumnName = "id")
     private Placement placement;
 

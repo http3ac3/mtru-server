@@ -44,7 +44,7 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToOne()
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsible_id", referencedColumnName = "id", unique = true)
     private Responsible responsible;
 
@@ -107,7 +107,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles().stream().map(Role::getName)
+        return this.getRoles().stream().map(Role::getName)
                 .map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 

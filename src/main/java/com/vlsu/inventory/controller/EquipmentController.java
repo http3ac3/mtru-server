@@ -49,6 +49,7 @@ public class EquipmentController {
             List<Equipment> equipment = equipmentService.getAllEquipmentByParams(inventoryNumber, name, initialCostFrom, initialCostTo,
                     commissioningDateFrom, commissioningDateTo, decommissioningDateFrom, decommissioningDateTo,
                     commissioningActNumber, decommissioningActNumber, subcategoryId, responsibleId, placementId);
+
             return new ResponseEntity<>(equipment, HttpStatus.OK);
         } catch (Exception exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);

@@ -1,7 +1,9 @@
 package com.vlsu.inventory.controller;
 
+import com.vlsu.inventory.dto.model.CategoryDto;
 import com.vlsu.inventory.model.Category;
 import com.vlsu.inventory.service.CategoryService;
+import com.vlsu.inventory.util.MappingUtils;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
 import lombok.AccessLevel;
@@ -21,7 +23,7 @@ public class CategoryController {
     CategoryService categoryService;
 
     @GetMapping("/categories/all")
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public ResponseEntity<List<CategoryDto.Response.Default>> getAllCategories() {
         return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
     }
 
@@ -52,10 +54,10 @@ public class CategoryController {
 
     @PostMapping("/categories")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createCategory(@RequestBody Category category) {
+    public ResponseEntity<?> createCategory(@RequestBody CategoryDto.Request.Create request) {
         try {
-            categoryService.createCategory(category);
-            return new ResponseEntity<>(category, HttpStatus.CREATED);
+            categoryService.createCategory(request);
+            return new ResponseEntity<>(request, HttpStatus.CREATED);
         } catch (Exception exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }

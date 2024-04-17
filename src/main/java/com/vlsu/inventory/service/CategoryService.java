@@ -1,14 +1,17 @@
 package com.vlsu.inventory.service;
 
+import com.vlsu.inventory.dto.model.CategoryDto;
 import com.vlsu.inventory.model.Category;
 import com.vlsu.inventory.repository.CategoryRepository;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import com.vlsu.inventory.util.mapping.CategoryMappingUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -17,8 +20,9 @@ public class CategoryService {
 
     CategoryRepository categoryRepository;
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryDto.Response.Default> getAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+        return categories.stream().map(CategoryMappingUtils::toDto).collect(Collectors.toList());
     }
 
     public Category getCategoryById(Long id) throws ResourceNotFoundException {
@@ -31,7 +35,8 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category with name: " + name + " not found"));
     }
 
-    public void createCategory(Category category) {
+    public void createCategory(CategoryDto.Request.Create request) {
+        Category category = CategoryMappingUtils.fromDto(request);
         categoryRepository.save(category);
     }
 

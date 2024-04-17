@@ -1,6 +1,7 @@
 package com.vlsu.inventory.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,8 +22,9 @@ public class Subcategory {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Category category;
 
     @OneToMany(mappedBy = "subcategory")

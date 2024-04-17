@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,7 +13,9 @@ import java.util.List;
 
 public interface EquipmentRepository extends JpaRepository<Equipment, Long>, JpaSpecificationExecutor<Equipment> {
     @Override
-    @EntityGraph(value = "Equipment.placement.responsible.subcategory")
+    //@EntityGraph(value = "Equipment.placement.responsible.subcategory")
+    //@EntityGraph(attributePaths = { "responsible", "placement", "subcategory"}, type = EntityGraph.EntityGraphType.FETCH)
+    @Query("SELECT e FROM Equipment e JOIN Responsible r ON e.responsible.id = r.id JOIN Subcategory s ON s.id = e.subcategory.id JOIN Placement p ON p.id = e.placement.id")
     List<Equipment> findAll(Specification<Equipment> spec);
     List<Equipment> findByInventoryNumberStartingWith(String inventoryNumber);
     static Specification<Equipment> inventoryNumberStartsWith(String inventoryNumber) {

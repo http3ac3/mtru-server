@@ -2,6 +2,7 @@ package com.vlsu.inventory.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -28,15 +30,15 @@ public class Rent {
     @Column(name = "description")
     private String description;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipment_id", referencedColumnName = "id")
     private Equipment equipment;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsible_id", referencedColumnName = "id")
     private Responsible responsible;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "placement_id", referencedColumnName = "id")
     private Placement placement;
 }

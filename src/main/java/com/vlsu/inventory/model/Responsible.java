@@ -1,6 +1,7 @@
 package com.vlsu.inventory.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,7 +38,7 @@ public class Responsible {
     @Column(name = "is_financially_responsible", nullable = false)
     private boolean isFinanciallyResponsible;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", referencedColumnName = "id")
     private Department department;
 

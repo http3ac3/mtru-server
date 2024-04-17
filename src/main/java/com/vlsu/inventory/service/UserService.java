@@ -7,6 +7,7 @@ import com.vlsu.inventory.repository.ResponsibleRepository;
 import com.vlsu.inventory.repository.RoleRepository;
 import com.vlsu.inventory.repository.UserRepository;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -78,9 +79,11 @@ public class UserService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return getByUsername(username);
     }
+
     public User getByUsername(String username) {
-        return userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+        return user;
     }
 
 }

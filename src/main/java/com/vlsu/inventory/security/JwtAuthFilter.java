@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -47,7 +48,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // обрезаем префикс и получаем имя пользователя из токена
         var jwt = authHeader.split(" ")[1].trim();
         var username = jwtService.extractUsername(jwt);
-
         if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService
                     .userDetailsService()

@@ -1,8 +1,9 @@
 package com.vlsu.inventory.service;
 
+import com.vlsu.inventory.dto.model.EquipmentDto;
 import com.vlsu.inventory.model.*;
 import com.vlsu.inventory.repository.*;
-import com.vlsu.inventory.security.UserDetailsImpl;
+import com.vlsu.inventory.util.MappingUtils;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
@@ -15,16 +16,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.vlsu.inventory.repository.EquipmentRepository.*;
 
@@ -74,6 +73,10 @@ public class EquipmentService {
             filter = filter.and(placementIdEquals(placementId));
         return equipmentRepository.findAll(filter);
     }
+
+//    public List<EquipmentDto> getAllEquipmentDto(List<Equipment> equipment) {
+//        return equipment.stream().map(MappingUtils::equipmentToDto).collect(Collectors.toList());
+//    }
 
     public Equipment getEquipmentById(Long id) throws ResourceNotFoundException {
         return equipmentRepository.findById(id)
