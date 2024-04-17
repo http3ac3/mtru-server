@@ -3,7 +3,6 @@ package com.vlsu.inventory.controller;
 import com.vlsu.inventory.dto.model.CategoryDto;
 import com.vlsu.inventory.model.Category;
 import com.vlsu.inventory.service.CategoryService;
-import com.vlsu.inventory.util.MappingUtils;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
 import lombok.AccessLevel;

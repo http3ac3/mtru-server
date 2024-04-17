@@ -1,9 +1,7 @@
 package com.vlsu.inventory.service;
 
-import com.vlsu.inventory.dto.model.EquipmentDto;
 import com.vlsu.inventory.model.*;
 import com.vlsu.inventory.repository.*;
-import com.vlsu.inventory.util.MappingUtils;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
@@ -23,7 +21,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.vlsu.inventory.repository.EquipmentRepository.*;
 
