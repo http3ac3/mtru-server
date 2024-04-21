@@ -1,9 +1,6 @@
 package com.vlsu.inventory.dto.model;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -12,7 +9,7 @@ public enum PlacementDto {;
     interface Name { String getName(); }
 
     public enum Request {;
-        @Getter @Setter @AllArgsConstructor
+        @Getter @Setter @AllArgsConstructor @NoArgsConstructor
         public static class Create implements Name {
             String name;
         }

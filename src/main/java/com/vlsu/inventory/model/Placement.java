@@ -13,6 +13,13 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "placement")
+@NamedEntityGraph(
+        name = "Placement.equipment.rents",
+        attributeNodes = {
+                @NamedAttributeNode("equipment"),
+                @NamedAttributeNode("rents")
+        }
+)
 public class Placement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

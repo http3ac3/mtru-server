@@ -4,8 +4,6 @@ import com.vlsu.inventory.dto.model.PlacementDto;
 import com.vlsu.inventory.model.Placement;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-
-@FieldDefaults(level = AccessLevel.PUBLIC)
 public class PlacementMappingUtils {
 
     /**
@@ -14,7 +12,7 @@ public class PlacementMappingUtils {
      * @param dto Placement DTO create request
      * @return Placement entity
      */
-    static Placement fromDto(PlacementDto.Request.Create dto) {
+    public static Placement fromDto(PlacementDto.Request.Create dto) {
         Placement placement = new Placement();
         placement.setName(dto.getName());
         return placement;
@@ -26,7 +24,7 @@ public class PlacementMappingUtils {
      * @param dto Placement DTO update request
      * @return Placement entity
      */
-    static Placement fromDto(PlacementDto.Request.Update dto) {
+    public static Placement fromDto(PlacementDto.Request.Update dto) {
         Placement placement = new Placement();
         placement.setId(dto.getId());
         placement.setName(dto.getName());
@@ -39,7 +37,7 @@ public class PlacementMappingUtils {
      * @param dto Placement DTO response
      * @return Placement entity
      */
-    static Placement fromDto(PlacementDto.Response.Default dto) {
+    public static Placement fromDto(PlacementDto.Response.Default dto) {
         Placement placement = new Placement();
         placement.setId(dto.getId());
         placement.setName(dto.getName());
@@ -52,7 +50,7 @@ public class PlacementMappingUtils {
      * @param placement Placement entity
      * @return Placement DTO response
      */
-    static PlacementDto.Response.Default toDto(Placement placement) {
+    public static PlacementDto.Response.Default toDto(Placement placement) {
         return new PlacementDto.Response.Default(placement.getId(), placement.getName());
     }
 }

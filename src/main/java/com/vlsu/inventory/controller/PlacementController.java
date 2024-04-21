@@ -1,5 +1,6 @@
 package com.vlsu.inventory.controller;
 
+import com.vlsu.inventory.dto.model.PlacementDto;
 import com.vlsu.inventory.model.Placement;
 import com.vlsu.inventory.service.PlacementService;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -22,54 +24,43 @@ public class PlacementController {
 
     PlacementService placementService;
 
-    @GetMapping("/placements/all")
-    public ResponseEntity<List<Placement>> getAllPlacements() {
-        return new ResponseEntity<>(placementService.getAllPlacements(), HttpStatus.OK);
+    @GetMapping("/placements")
+    public ResponseEntity<List<PlacementDto.Response.Default>> getAllPlacements() {
+        return ResponseEntity.ok(placementService.getAll());
     }
 
 
     @GetMapping("/placements/{id}")
-    public ResponseEntity<Placement> getPlacementById(@PathVariable Long id) {
+    public ResponseEntity<PlacementDto.Response.Default> getPlacementById(@PathVariable Long id) {
         try {
-            Placement placement = placementService.getPlacementById(id);
-            return new ResponseEntity<>(placement, HttpStatus.OK);
+            return ResponseEntity.ok(placementService.getById(id));
         }
-        catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
-    }
-
-    @GetMapping("/placements")
-    public ResponseEntity<List<Placement>> getPlacementByName(
-            @RequestParam String name) {
-        List<Placement> placements = placementService.getPlacementByName(name);
-        return new ResponseEntity<>(placements, HttpStatus.OK);
     }
 
     @PostMapping("/placements")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Placement> createPlacement(
-            @RequestBody Placement placement) {
+    public ResponseEntity<Placement> create(@RequestBody PlacementDto.Request.Create request) {
         try {
-            placementService.createPlacement(placement);
-            return new ResponseEntity<>(placement, HttpStatus.CREATED);
-        } catch (Exception ex) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            Placement created = placementService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    @PutMapping("/placements/{id}")
+    @PutMapping("/placements")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updatePlacementById(
-            @PathVariable Long id,
-            @RequestBody Placement placementRequest) {
+    public ResponseEntity<?> update(@RequestBody PlacementDto.Request.Update request) {
         try {
-            placementService.updatePlacementById(id, placementRequest);
-            return new ResponseEntity<>("Данные были успешно обновлены", HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            Placement updated = placementService.update(request);
+            return ResponseEntity.ok(updated);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
@@ -78,14 +69,14 @@ public class PlacementController {
     public ResponseEntity<String> deletePlacementById(
             @PathVariable Long id) {
         try {
-            placementService.deletePlacementById(id);
-            return new ResponseEntity<>("Данные были успешно удалены", HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ResourceHasDependenciesException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            placementService.delete(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Данные были успешно удалены");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ResourceHasDependenciesException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
