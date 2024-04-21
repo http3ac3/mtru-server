@@ -10,7 +10,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -30,29 +32,28 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
     }
 
-    public Category getCategoryByName(String name) throws ResourceNotFoundException {
-        return categoryRepository.findByName(name)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with name: " + name + " not found"));
-    }
-
-    public void createCategory(CategoryDto.Request.Create request) {
+    public void create(CategoryDto.Request.Create request) {
         Category category = CategoryMappingUtils.fromDto(request);
         categoryRepository.save(category);
     }
 
-    public void updateCategoryById(Long id, Category category) throws ResourceNotFoundException {
-        Category categoryToUpdate = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
+    public void update(CategoryDto.Request.Update request) throws ResourceNotFoundException {
+        Category category = categoryRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Category with id: " + request.getId() + " not found"));
 
-        categoryToUpdate.setName(category.getName());
-        categoryRepository.save(categoryToUpdate);
+        category.setName(request.getName());
+        categoryRepository.save(category);
     }
 
-    public void deleteCategoryById(Long id) throws ResourceNotFoundException, ResourceHasDependenciesException {
-        Category categoryToDelete = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
+    public void delete(Long id) throws ResourceNotFoundException, ResourceHasDependenciesException {
+        Optional<Category> category = categoryRepository.findWithSubcategoriesById(id);
 
-        if (!categoryToDelete.getSubcategories().isEmpty()) {
+        if (category.isEmpty()) {
+            throw new ResourceNotFoundException("Category with id '" + id + "' not found");
+        }
+
+        if (!category.get().getSubcategories().isEmpty()) {
             throw new ResourceHasDependenciesException("Category with id: " + id + " has relations with subcategories");
         }
         categoryRepository.deleteById(id);

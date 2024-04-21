@@ -21,73 +21,60 @@ import java.util.List;
 public class CategoryController {
     CategoryService categoryService;
 
-    @GetMapping("/categories/all")
-    public ResponseEntity<List<CategoryDto.Response.Default>> getAllCategories() {
+    @GetMapping("/categories")
+    public ResponseEntity<List<CategoryDto.Response.Default>> getAll() {
         return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
     }
 
     @GetMapping("/categories/{id}")
-    public ResponseEntity<?> getCategoryById(
-            @PathVariable Long id) {
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         try {
             Category category = categoryService.getCategoryById(id);
             return new ResponseEntity<>(category, HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @GetMapping("/categories")
-    public ResponseEntity<?> getCategoryByName(@RequestParam String name) {
-        try {
-            Category category = categoryService.getCategoryByName(name);
-            return new ResponseEntity<>(category, HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("/categories")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createCategory(@RequestBody CategoryDto.Request.Create request) {
+    public ResponseEntity<?> create(@RequestBody CategoryDto.Request.Create request) {
         try {
-            categoryService.createCategory(request);
+            categoryService.create(request);
             return new ResponseEntity<>(request, HttpStatus.CREATED);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PutMapping("/categories/{id}")
+    @PutMapping("/categories")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updateCategoryById(
-            @PathVariable Long id, @RequestBody Category categoryRequest) {
+    public ResponseEntity<String> updateById(
+            @RequestBody CategoryDto.Request.Update categoryRequest) {
         try {
-            categoryService.updateCategoryById(id, categoryRequest);
+            categoryService.update(categoryRequest);
             return new ResponseEntity<>("Данные были успешно обновлены", HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/categories/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> deleteCategoryById(@PathVariable Long id) {
+    public ResponseEntity<String> deleteById(@PathVariable Long id) {
         try {
-            categoryService.deleteCategoryById(id);
+            categoryService.delete(id);
             return new ResponseEntity<>("Данные были успешно удалены", HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ResourceHasDependenciesException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (ResourceHasDependenciesException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }
