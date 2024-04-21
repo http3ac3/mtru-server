@@ -1,5 +1,6 @@
 package com.vlsu.inventory.controller;
 
+import com.vlsu.inventory.dto.model.SubcategoryDto;
 import com.vlsu.inventory.model.Subcategory;
 import com.vlsu.inventory.service.SubcategoryService;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
@@ -22,74 +23,71 @@ public class SubcategoryController {
 
     SubcategoryService subcategoryService;
 
-    @GetMapping("/subcategories/all")
-    public ResponseEntity<List<Subcategory>> getAllSubcategories() {
-        return new ResponseEntity<>(subcategoryService.getAllSubcategories(), HttpStatus.OK);
+    @GetMapping("/subcategories")
+    public ResponseEntity<List<SubcategoryDto.Response.Default>> getAll() {
+        return ResponseEntity.ok(subcategoryService.getAll());
     }
 
     @GetMapping("/categories/{categoryId}/subcategories")
-    public ResponseEntity<?> getSubcategoriesByCategoryId(
-            @PathVariable Long categoryId) {
+    public ResponseEntity<?> getByCategoryId(@PathVariable Long categoryId) {
         try {
-            return new ResponseEntity<>(subcategoryService.getSubcategoriesByCategoryId(categoryId), HttpStatus.OK);
+            return ResponseEntity.ok(subcategoryService.getByCategoryId(categoryId));
         } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @GetMapping("/subcategories/{id}")
-    public ResponseEntity<?> getSubcategoryById(@PathVariable Long id) {
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         try {
-            return new ResponseEntity<>(subcategoryService.getSubcategoryById(id), HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(subcategoryService.getById(id));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @PostMapping("/categories/{categoryId}/subcategories")
+    @PostMapping("/subcategories")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createSubcategory(
-            @PathVariable Long categoryId, @RequestBody Subcategory subcategory) {
+    public ResponseEntity<?> create(@RequestBody SubcategoryDto.Request.Create request) {
         try {
-            subcategoryService.createSubcategory(subcategory, categoryId);
-            return new ResponseEntity<>(subcategory, HttpStatus.CREATED);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            Subcategory created = subcategoryService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @PutMapping("/subcategories/{id}")
+    @PutMapping("/subcategories")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updateSubcategoryByCategoryId(
-            @RequestParam Long categoryId, @PathVariable Long id, @RequestBody Subcategory subcategoryRequest) {
+    public ResponseEntity<?> update(@RequestBody SubcategoryDto.Request.Update request) {
         try {
-            subcategoryService.updateSubcategoryById(id, subcategoryRequest, categoryId);
-            return new ResponseEntity<>("Данные были успешно обновлены", HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            Subcategory updated = subcategoryService.update(request);
+            return ResponseEntity.ok(updated);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @DeleteMapping("/subcategories/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> deleteSubcategoryById(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id) {
         try {
-            subcategoryService.deleteSubcategoryById(id);
-            return new ResponseEntity<>("Данные были успешно удалены", HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ResourceHasDependenciesException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            subcategoryService.delete(id);
+            return ResponseEntity.ok("Данные были успешно удалены");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ResourceHasDependenciesException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }

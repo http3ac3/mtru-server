@@ -1,17 +1,19 @@
 package com.vlsu.inventory.service;
 
+import com.vlsu.inventory.dto.model.SubcategoryDto;
 import com.vlsu.inventory.model.Category;
 import com.vlsu.inventory.model.Subcategory;
-import com.vlsu.inventory.repository.CategoryRepository;
 import com.vlsu.inventory.repository.SubcategoryRepository;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import com.vlsu.inventory.util.mapping.SubcategoryMappingUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -19,48 +21,49 @@ import java.util.List;
 public class SubcategoryService {
 
     SubcategoryRepository subcategoryRepository;
-    CategoryRepository categoryRepository;
+    CategoryService categoryService;
 
-    public List<Subcategory> getAllSubcategories() {
-        return subcategoryRepository.findAll();
+    public List<SubcategoryDto.Response.Default> getAll() {
+        List<Subcategory> subcategories = subcategoryRepository.findAll();
+        return subcategories.stream().map(SubcategoryMappingUtils::toDto).collect(Collectors.toList());
     }
-    public Subcategory getSubcategoryById(Long id) throws ResourceNotFoundException {
-        return subcategoryRepository.findById(id)
+    public SubcategoryDto.Response.Default getById(Long id) throws ResourceNotFoundException {
+        Subcategory subcategory = subcategoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Subcategory with id: " + id + " not found"));
+        return SubcategoryMappingUtils.toDto(subcategory);
     }
 
-    public List<Subcategory> getSubcategoriesByCategoryId(Long categoryId)
-            throws ResourceNotFoundException {
-        if (!categoryRepository.existsById(categoryId))
-            throw new ResourceNotFoundException("Category with id '" + categoryId + "' not found");
+    public List<Subcategory> getByCategoryId(Long categoryId) throws ResourceNotFoundException {
+        categoryService.getCategoryById(categoryId);
         return subcategoryRepository.findByCategoryId(categoryId);
     }
 
-    public void createSubcategory(Subcategory subcategoryRequest, Long categoryId)
-            throws ResourceNotFoundException {
-        Subcategory subcategory = categoryRepository.findById(categoryId).map(category -> {
-            subcategoryRequest.setCategory(category);
-            return subcategoryRepository.save(subcategoryRequest);
-        }).orElseThrow(() -> new ResourceNotFoundException("Category with id '" + categoryId + "' not found"));
+    public Subcategory create(SubcategoryDto.Request.Create request) throws ResourceNotFoundException {
+        categoryService.getCategoryById(request.getCategory().getId());
+        Subcategory subcategory = SubcategoryMappingUtils.fromDto(request);
+        return subcategoryRepository.save(subcategory);
     }
 
-    public void updateSubcategoryById(Long id, Subcategory subcategoryRequest, Long categoryId)
-            throws ResourceNotFoundException {
-        Category category = categoryRepository.findById(categoryId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Category with id '" + categoryId + "' not found"));
-        Subcategory subcategory = subcategoryRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Subcategory with id '" + id + "' not found"));
-        subcategory.setName(subcategoryRequest.getName());
+    public Subcategory update(SubcategoryDto.Request.Update request) throws ResourceNotFoundException {
+        Category category = categoryService.getCategoryById(request.getCategory().getId());
+
+        Subcategory subcategory = subcategoryRepository
+                .findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Subcategory with id '"
+                        + request.getId() + "' not found"));
+
+        subcategory.setName(request.getName());
         subcategory.setCategory(category);
-        subcategoryRepository.save(subcategory);
+        return subcategoryRepository.save(subcategory);
     }
 
-    public void deleteSubcategoryById(Long id) throws ResourceNotFoundException, ResourceHasDependenciesException {
-        Subcategory subcategoryToDelete = subcategoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Subcategory with id: " + id + " not found"));
-        if (!subcategoryToDelete.getEquipment().isEmpty()) {
-            throw new ResourceHasDependenciesException("Category with id: " + id + " has relations with equipment");
+    public void delete(Long id) throws ResourceNotFoundException, ResourceHasDependenciesException {
+        Subcategory subcategory = subcategoryRepository
+                .findCountOfEquipmentById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Subcategory with id '" + id + "' not found"));
+        if (!subcategory.getEquipment().isEmpty()) {
+            throw new ResourceHasDependenciesException("Subcategory with id '" + id + "' has dependencies with equipment");
         }
         subcategoryRepository.deleteById(id);
     }
