@@ -5,7 +5,6 @@ import com.vlsu.inventory.model.Department;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PUBLIC)
 public class DepartmentMappingUtils {
 
     /**
@@ -14,7 +13,7 @@ public class DepartmentMappingUtils {
      * @param dto Department DTO create request
      * @return Department entity
      */
-    static Department fromDto(DepartmentDto.Request.Create dto) {
+    public static Department fromDto(DepartmentDto.Request.Create dto) {
         Department department = new Department();
         department.setName(dto.getName());
         return department;
@@ -26,7 +25,7 @@ public class DepartmentMappingUtils {
      * @param dto Department DTO update request
      * @return Department entity
      */
-    static Department fromDto(DepartmentDto.Request.Update dto) {
+    public static Department fromDto(DepartmentDto.Request.Update dto) {
         Department department = new Department();
         department.setId(dto.getId());
         department.setName(dto.getName());
@@ -39,7 +38,7 @@ public class DepartmentMappingUtils {
      * @param dto Department DTO response object
      * @return Department entity
      */
-    static Department fromDto(DepartmentDto.Response.Default dto) {
+    public static Department fromDto(DepartmentDto.Response.Default dto) {
         Department department = new Department();
         department.setId(dto.getId());
         department.setName(dto.getName());
@@ -52,7 +51,7 @@ public class DepartmentMappingUtils {
      * @param department Department entity
      * @return Department DTO response
      */
-    static DepartmentDto.Response.Default toDto(Department department) {
+    public static DepartmentDto.Response.Default toDto(Department department) {
         return new DepartmentDto.Response.Default(department.getId(), department.getName());
     }
 }

@@ -1,9 +1,6 @@
 package com.vlsu.inventory.dto.model;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 
@@ -13,7 +10,7 @@ public enum DepartmentDto {;
     interface Name { String getName(); }
 
     public enum Request {;
-        @Getter @Setter @AllArgsConstructor
+        @Getter @AllArgsConstructor @NoArgsConstructor
         public static class Create implements Name {
             String name;
         }

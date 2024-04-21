@@ -1,5 +1,6 @@
 package com.vlsu.inventory.controller;
 
+import com.vlsu.inventory.dto.model.DepartmentDto;
 import com.vlsu.inventory.model.Department;
 import com.vlsu.inventory.service.DepartmentService;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
@@ -22,72 +23,57 @@ import java.util.List;
 public class DepartmentController {
     DepartmentService departmentService;
 
-    @GetMapping("/departments/all")
-    public ResponseEntity<List<Department>> getAllDepartments() {
-        return new ResponseEntity<>(departmentService.getAllDepartments(), HttpStatus.OK);
+    @GetMapping("/departments")
+    public ResponseEntity<List<DepartmentDto.Response.Default>> getAll() {
+        return new ResponseEntity<>(departmentService.getAll(), HttpStatus.OK);
     }
 
     @GetMapping("/departments/{id}")
-    public ResponseEntity<?> getDepartmentById(@PathVariable Long id) {
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         try {
-            Department department = departmentService.getDepartmentById(id);
+            DepartmentDto.Response.Default department = departmentService.getById(id);
             return new ResponseEntity<>(department, HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
-
-    @GetMapping("/departments")
-    public ResponseEntity<?> getDepartmentByName(
-            @RequestParam String name) {
-        try {
-            Department department = departmentService.getDepartmentByName(name);
-            return new ResponseEntity<>(department, HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
 
     @PostMapping("/departments")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createNewDepartment(@RequestBody Department department) {
+    public ResponseEntity<?> create(@RequestBody DepartmentDto.Request.Create department) {
         try {
-            departmentService.createDepartment(department);
+            departmentService.create(department);
             return new ResponseEntity<>(department, HttpStatus.CREATED);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PutMapping("/departments/{id}")
+    @PutMapping("/departments")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updateDepartmentById(
-            @PathVariable Long id, @RequestBody Department departmentRequest) {
+    public ResponseEntity<String> update(@RequestBody DepartmentDto.Request.Update departmentRequest) {
         try {
-            departmentService.updateDepartmentById(id, departmentRequest);
+            departmentService.update(departmentRequest);
             return new ResponseEntity<>("Данные были успешно обновлены", HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/departments/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> deleteDepartmentById(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
-            departmentService.deleteDepartmentById(id);
+            departmentService.delete(id);
             return new ResponseEntity<>( HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ResourceHasDependenciesException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (ResourceHasDependenciesException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }
