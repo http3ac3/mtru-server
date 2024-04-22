@@ -16,6 +16,11 @@ public interface ResponsibleRepository extends JpaRepository<Responsible, Long>,
     List<Responsible> findAll(Specification<Responsible> spec);
     @Query("SELECT r FROM Responsible r LEFT JOIN FETCH r.equipment WHERE r.id = ?1")
     Optional<Responsible> findWithEquipmentById(Long id);
+
+    @Override
+    @EntityGraph(attributePaths = { "department", "user" })
+    Optional<Responsible> findById(Long id);
+
     static Specification<Responsible> isFinanciallyResponsible(Boolean isFinanciallyResponsible) {
         return (responsible, query, criteriaBuilder) -> criteriaBuilder.equal(responsible
                 .get("isFinanciallyResponsible"), isFinanciallyResponsible);

@@ -14,6 +14,9 @@ public interface SubcategoryRepository extends JpaRepository<Subcategory, Long> 
     @EntityGraph(attributePaths = { "category" })
     List<Subcategory> findAll();
 
+    @EntityGraph(attributePaths = { "category" })
+    Optional<Subcategory> findById(Long id);
+
     @Query("SELECT s FROM Subcategory s LEFT JOIN FETCH s.equipment e WHERE s.id = ?1")
     Optional<Subcategory> findCountOfEquipmentById(Long id);
     List<Subcategory> findByCategoryId(Long categoryId);
