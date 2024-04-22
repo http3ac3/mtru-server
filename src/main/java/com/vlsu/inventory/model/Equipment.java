@@ -17,16 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "equipment")
-@NamedEntityGraph(
-        name = "Equipment.placement.responsible.subcategory",
-        attributeNodes = {
-                @NamedAttributeNode(value = "subcategory", subgraph = "Subcategory.category"),
-                @NamedAttributeNode(value = "responsible", subgraph = "Responsible.department"),
-                @NamedAttributeNode(value = "placement")
-        },
-        subgraphs = {
-        }
-)
 public class Equipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

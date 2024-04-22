@@ -4,10 +4,8 @@ import com.vlsu.inventory.dto.model.EquipmentDto;
 import com.vlsu.inventory.model.Equipment;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-
-@FieldDefaults(level = AccessLevel.PUBLIC)
 public class EquipmentMappingUtils {
-    static Equipment fromDto(EquipmentDto.Request.Create dto) {
+    public static Equipment fromDto(EquipmentDto.Request.Create dto) {
         return Equipment.builder()
                 .inventoryNumber(dto.getInventoryNumber())
                 .name(dto.getName())
@@ -28,7 +26,7 @@ public class EquipmentMappingUtils {
      * @param dto Equipment DTO update request
      * @return Equipment entity
      */
-    static Equipment fromDto(EquipmentDto.Request.Update dto) {
+    public static Equipment fromDto(EquipmentDto.Request.Update dto) {
         return Equipment.builder()
                 .id(dto.getId())
                 .inventoryNumber(dto.getInventoryNumber())
@@ -52,7 +50,7 @@ public class EquipmentMappingUtils {
      * @param dto Equipment DTO response
      * @return Equipment entity
      */
-    static Equipment fromDto(EquipmentDto.Response.Default dto) {
+    public static Equipment fromDto(EquipmentDto.Response.Default dto) {
         return Equipment.builder()
                 .id(dto.getId())
                 .inventoryNumber(dto.getInventoryNumber())
@@ -77,7 +75,7 @@ public class EquipmentMappingUtils {
      * @param dto Equipment DTO response without associations
      * @return Equipment entity object
      */
-    static Equipment fromDto(EquipmentDto.Response.WithoutAssociations dto) {
+    public static Equipment fromDto(EquipmentDto.Response.WithoutAssociations dto) {
         return Equipment.builder()
                 .id(dto.getId())
                 .inventoryNumber(dto.getInventoryNumber())
@@ -92,7 +90,7 @@ public class EquipmentMappingUtils {
                 .build();
     }
 
-    static Equipment fromDto(EquipmentDto.Response.Public dto) {
+    public static Equipment fromDto(EquipmentDto.Response.Public dto) {
         return Equipment.builder()
                 .id(dto.getId())
                 .name(dto.getName())
@@ -106,7 +104,7 @@ public class EquipmentMappingUtils {
      * @param equipment Equipment entity
      * @return Equipment DTO response
      */
-    static EquipmentDto.Response.Default toDto(Equipment equipment) {
+    public static EquipmentDto.Response.Default toDto(Equipment equipment) {
         return EquipmentDto.Response.Default.builder()
                 .id(equipment.getId())
                 .inventoryNumber(equipment.getInventoryNumber())
@@ -131,7 +129,7 @@ public class EquipmentMappingUtils {
      * @param equipment Equipment entity
      * @return Equipment DTO response without associations
      */
-    static EquipmentDto.Response.WithoutAssociations toDtoWithoutAssociations(Equipment equipment) {
+    public static EquipmentDto.Response.WithoutAssociations toDtoWithoutAssociations(Equipment equipment) {
         return EquipmentDto.Response.WithoutAssociations.builder()
                 .id(equipment.getId())
                 .inventoryNumber(equipment.getInventoryNumber())
@@ -152,7 +150,7 @@ public class EquipmentMappingUtils {
      * @param equipment Equipment entity
      * @return Equipment DTO response public
      */
-    static EquipmentDto.Response.Public toDtoPublic(Equipment equipment) {
+    public static EquipmentDto.Response.Public toDtoPublic(Equipment equipment) {
         return new EquipmentDto.Response.Public(equipment.getId(), equipment.getInventoryNumber(), equipment.getName());
     }
 

@@ -1,11 +1,14 @@
 package com.vlsu.inventory.service;
 
+import com.vlsu.inventory.dto.model.EquipmentDto;
 import com.vlsu.inventory.model.*;
 import com.vlsu.inventory.repository.*;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import com.vlsu.inventory.util.mapping.EquipmentMappingUtils;
+import com.vlsu.inventory.util.mapping.ResponsibleMappingUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,12 +33,12 @@ import static com.vlsu.inventory.repository.EquipmentRepository.*;
 public class EquipmentService {
 
     EquipmentRepository equipmentRepository;
-    ResponsibleRepository responsibleRepository;
-    PlacementRepository placementRepository;
-    SubcategoryRepository subcategoryRepository;
+    ResponsibleService responsibleService;
+    PlacementService placementService;
+    SubcategoryService subcategoryService;
     UserRepository userRepository;
 
-    public List<Equipment> getAllEquipmentByParams(
+    public List<EquipmentDto.Response.Default> getAllByParams(
             String inventoryNumber, String name, BigDecimal initialCostFrom, BigDecimal initialCostTo,
             LocalDate commissioningDateFrom, LocalDate commissioningDateTo,
             LocalDate decommissioningDateFrom, LocalDate decommissioningDateTo,
@@ -68,131 +71,72 @@ public class EquipmentService {
             filter = filter.and(responsibleIdEquals(responsibleId));
         if (placementId != null)
             filter = filter.and(placementIdEquals(placementId));
-        return equipmentRepository.findAll(filter);
+        List<Equipment> equipment = equipmentRepository.findAll(filter);
+        return equipment.stream().map(EquipmentMappingUtils::toDto).toList();
     }
 
-//    public List<EquipmentDto> getAllEquipmentDto(List<Equipment> equipment) {
-//        return equipment.stream().map(MappingUtils::equipmentToDto).collect(Collectors.toList());
-//    }
-
-    public Equipment getEquipmentById(Long id) throws ResourceNotFoundException {
-        return equipmentRepository.findById(id)
+    public EquipmentDto.Response.Default getById(Long id) throws ResourceNotFoundException {
+        Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Equipment with id: " + id + " not found"));
+        return EquipmentMappingUtils.toDto(equipment);
     }
 
-    public List<Equipment> getEquipmentByInventoryNumber(String inventoryNumber)
-            throws ResourceNotFoundException {
-        List<Equipment> equipment = equipmentRepository.findByInventoryNumberStartingWith(inventoryNumber);
-        if (equipment.isEmpty()) {
-            throw new ResourceNotFoundException("Equipment with inventory number '" + inventoryNumber +"' not found");
-        }
-        return equipment;
-    }
-
-    public List<Equipment> getEquipmentBySubcategoryId(Long subcategoryId) throws ResourceNotFoundException {
-        if (!subcategoryRepository.existsById(subcategoryId)) {
-            throw new ResourceNotFoundException("Subcategory with id '" + subcategoryId + "' not found");
-        }
-        List<Equipment> equipment = equipmentRepository.findBySubcategoryId(subcategoryId);
-        if (equipment.isEmpty()) {
-            throw new ResourceNotFoundException("Equipment with subcategory id '" + subcategoryId + "' not found");
-        }
-        return equipment;
-    }
-
-    public List<Equipment> getEquipmentByResponsibleId(Long responsibleId) throws ResourceNotFoundException {
-        if (!responsibleRepository.existsById(responsibleId)) {
-            throw new ResourceNotFoundException("Responsible with id '" + responsibleId + "' not found");
-        }
-        List<Equipment> equipment = equipmentRepository.findByResponsibleId(responsibleId);
-        if (equipment.isEmpty()) {
-            throw new ResourceNotFoundException("Equipment with responsible id '" + responsibleId + "' not found");
-        }
-        return equipment;
-    }
-
-
-    public List<Equipment> getEquipmentByPlacementId(Long placementId) throws ResourceNotFoundException {
-        if (!placementRepository.existsById(placementId)) {
-            throw new ResourceNotFoundException("Placement with id '" + placementId + "' not found");
-        }
-        List<Equipment> equipment = equipmentRepository.findByPlacementId(placementId);
-        if (equipment.isEmpty()) {
-            throw new ResourceNotFoundException("Equipment with placement id '" + placementId + "' not found");
-        }
-        return equipment;
-    }
-
-    public void createEquipment(Long subcategoryId, Long responsibleId, Long placementId, Equipment equipment,
-                                User principal)
+    // TODO Simplify is admin user check and setting responsible to equipment
+    public EquipmentDto.Request.Create create(EquipmentDto.Request.Create request, User principal)
             throws ResourceNotFoundException, ActionNotAllowedException {
-        User user = userRepository.findByUsername(principal.getUsername()).get();
-        Responsible responsible = user.getResponsible();
-        if (user.isAdmin()) {
-            responsible = responsibleRepository.findById(responsibleId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Responsible with id '" + responsibleId + "' not found"));
+
+        placementService.getById(request.getPlacement().getId());
+        subcategoryService.getById(request.getSubcategory().getId());
+
+        Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
+        if (principal.isAdmin()) {
+            responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsible().getId()));
             if (!responsible.isFinanciallyResponsible()) {
                 throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
                         + responsible.getFirstName() + " can't be financially responsible for equipment");
             }
         }
-        Placement placement = placementRepository.findById(placementId)
-                .orElseThrow(() -> new ResourceNotFoundException("Placement with id '" + placementId + "' not found"));
-        Subcategory subcategory = subcategoryRepository.findById(subcategoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Subcategory with id '" + subcategoryId + "' not found"));
-        equipment.setResponsible(responsible);
-        equipment.setPlacement(placement);
-        equipment.setSubcategory(subcategory);
-        equipmentRepository.save(equipment);
+        Equipment create = EquipmentMappingUtils.fromDto(request);
+        create.setResponsible(responsible);
+        equipmentRepository.save(create);
+        return request;
     }
 
-    public void updateEquipmentById(
-            Long id, Long subcategoryId, Long responsibleId,
-            Long placementId, Equipment equipmentRequest,
-            User principal)
+    public EquipmentDto.Request.Update update(EquipmentDto.Request.Update request, User principal)
             throws ResourceNotFoundException, ActionNotAllowedException {
-        Equipment equipment = equipmentRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" + id + "' not found"));
-        User user = userRepository.findByUsername(principal.getUsername()).get();
-        Responsible responsible = user.getResponsible();
-        if (!Objects.equals(equipmentRequest.getResponsible().getId(), responsible.getId()) && !user.isAdmin()) {
-            throw new ActionNotAllowedException("Equipment with inventory number '" + equipment.getInventoryNumber() +
+        if (!equipmentRepository.existsById(request.getId())) {
+            throw new ResourceNotFoundException("Equipment with id '" + request.getId() + "' not found");
+        }
+        placementService.getById(request.getPlacement().getId());
+        subcategoryService.getById(request.getSubcategory().getId());
+
+        Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
+
+        if (!principal.isAdmin() && !Objects.equals(request.getResponsible().getId(), responsible.getId())) {
+            throw new ActionNotAllowedException("Equipment with inventory number '" + request.getInventoryNumber() +
                     " doesn't belong to " + responsible.getLastName()  + " " + responsible.getFirstName());
-        }
-        if (user.isAdmin()) {
-            responsible = responsibleRepository.findById(responsibleId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Responsible with id '" + responsibleId + "' not found"));
-
+        } else if (principal.isAdmin()) {
+            responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsible().getId()));
             if (!responsible.isFinanciallyResponsible()) {
                 throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
                         + responsible.getFirstName() + " can't be financially responsible for equipment");
             }
         }
-        Placement placement = placementRepository.findById(placementId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Placement with id '" + placementId + "' not found"));
-        Subcategory subcategory = subcategoryRepository.findById(subcategoryId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Subcategory with id '" + subcategoryId + "' not found"));
-
-        equipment = new Equipment(equipmentRequest.getInventoryNumber(),  equipmentRequest.getName(),
-                equipmentRequest.getImageData(), equipmentRequest.getDescription(), equipmentRequest.getInitialCost(),
-                equipmentRequest.getCommissioningDate(), equipmentRequest.getCommissioningActNumber(),
-                equipmentRequest.getDecommissioningDate(), equipmentRequest.getDecommissioningActNumber());
-        equipment.setId(id);
-        equipment.setResponsible(responsible);
-        equipment.setPlacement(placement);
-        equipment.setSubcategory(subcategory);
-
-        equipmentRepository.save(equipment);
+        Equipment update = EquipmentMappingUtils.fromDto(request);
+        update.setResponsible(responsible);
+        equipmentRepository.save(update);
+        return request;
     }
 
-    public void deleteEquipmentById(Long id, User principal)
+    // TODO Do check only unclosed rents of deleting equipment
+    public void delete(Long id, User principal)
             throws ResourceNotFoundException, ResourceHasDependenciesException, ActionNotAllowedException {
-        User user = userRepository.findByUsername(principal.getUsername()).get();
-        Responsible responsible = user.getResponsible();
-        Equipment equipmentToDelete = equipmentRepository.findById(id)
+        Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
+        Equipment equipmentToDelete = equipmentRepository
+                .findWithRentsById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment with id: " + id + " not found"));
-        if (!user.isAdmin() && !Objects.equals(equipmentToDelete.getResponsible().getId(), responsible.getId())) {
+        if (!principal.isAdmin() && !Objects.equals(equipmentToDelete.getResponsible().getId(), responsible.getId())) {
             throw new ActionNotAllowedException("Equipment doesn't belong to responsible "
                     + responsible.getLastName() + " " + responsible.getLastName());
         }

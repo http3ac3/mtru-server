@@ -6,17 +6,25 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.lang.NonNullApi;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface EquipmentRepository extends JpaRepository<Equipment, Long>, JpaSpecificationExecutor<Equipment> {
     @Override
-    //@EntityGraph(value = "Equipment.placement.responsible.subcategory")
-    //@EntityGraph(attributePaths = { "responsible", "placement", "subcategory"}, type = EntityGraph.EntityGraphType.FETCH)
-    @Query("SELECT e FROM Equipment e JOIN Responsible r ON e.responsible.id = r.id JOIN Subcategory s ON s.id = e.subcategory.id JOIN Placement p ON p.id = e.placement.id")
+    @EntityGraph(attributePaths = { "responsible", "placement", "subcategory"})
     List<Equipment> findAll(Specification<Equipment> spec);
+
+    @Override
+    @EntityGraph(attributePaths = { "responsible", "placement", "subcategory"})
+    Optional<Equipment> findById(Long id);
+
+    @Query("SELECT e FROM Equipment e LEFT JOIN FETCH e.rents r WHERE e.id = ?1")
+    Optional<Equipment> findWithRentsById(Long id);
+
     List<Equipment> findByInventoryNumberStartingWith(String inventoryNumber);
     static Specification<Equipment> inventoryNumberStartsWith(String inventoryNumber) {
         return (equipment, query, criteriaBuilder) -> criteriaBuilder
