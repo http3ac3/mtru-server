@@ -2,13 +2,32 @@ package com.vlsu.inventory.repository;
 
 import com.vlsu.inventory.model.Rent;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface RentRepository extends JpaRepository<Rent, Long>, JpaSpecificationExecutor<Rent> {
+
+    @Override
+    @EntityGraph(value = "Rent.equipment.placement.responsible")
+    List<Rent> findAll(Specification<Rent> spec);
+
+    @Query("SELECT r FROM Rent r " +
+            "LEFT JOIN FETCH r.equipment e " +
+            "LEFT JOIN FETCH r.placement p " +
+            "LEFT JOIN FETCH r.responsible resp " +
+            "WHERE resp.id = ?1 AND r.endDateTime = null")
+    List<Rent> findUnclosedByResponsibleId(Long responsibleId);
+
+    @Override
+    @EntityGraph(attributePaths = { "equipment", "responsible", "placement" })
+    Optional<Rent> findById(Long id);
+
     static Specification<Rent> endDateIsNull() {
         return (rent, query, criteriaBuilder) -> criteriaBuilder.isNull(rent.get("endDateTime"));
     }

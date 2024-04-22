@@ -1,11 +1,15 @@
 package com.vlsu.inventory.service;
 
+import com.vlsu.inventory.dto.model.RentDto;
 import com.vlsu.inventory.model.*;
 import com.vlsu.inventory.repository.*;
 import com.vlsu.inventory.security.UserDetailsImpl;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import com.vlsu.inventory.util.mapping.EquipmentMappingUtils;
+import com.vlsu.inventory.util.mapping.RentMappingUtils;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,17 +34,19 @@ public class RentService {
 
     RentRepository rentRepository;
     EquipmentRepository equipmentRepository;
-    ResponsibleRepository responsibleRepository;
-    PlacementRepository placementRepository;
+    ResponsibleService responsibleService;
+    PlacementService placementService;
     UserRepository userRepository;
 
-    public Rent getRentById(Long id) throws ResourceNotFoundException {
-        return rentRepository.findById(id)
+    public RentDto.Response.Default getById(Long id) throws ResourceNotFoundException {
+        Rent rent = rentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Rent with id: " + id + " not found"));
+
+        return RentMappingUtils.toDto(rent);
     }
 
-    public List<Rent> getAllRentsByParams(
+    public List<RentDto.Response.Default> getAllByParams(
             LocalDateTime createDateTimeFrom,
             LocalDateTime createDateTimeTo,
             LocalDateTime endDateTimeFrom,
@@ -67,71 +73,48 @@ public class RentService {
         if (placementId != null)
             filter = filter.and(placementsIdEquals(placementId));
 
-        return rentRepository.findAll(filter);
+        List<Rent> rents = rentRepository.findAll(filter);
+        return rents.stream().map(RentMappingUtils::toDto).toList();
     }
 
-    public List<Rent> getRentsByEquipmentId(Long equipmentId) throws ResourceNotFoundException {
-        if (!equipmentRepository.existsById(equipmentId))
-            throw new ResourceNotFoundException("Equipment with id '" + equipmentId + "' not found");
-        List<Rent> rents = rentRepository.findByEquipmentId(equipmentId);
-        if (rents.isEmpty()) throw new ResourceNotFoundException("Nothing found");
-        return rents;
-    }
-
-    public List<Rent> getRentsByPlacementId(Long placementId) throws ResourceNotFoundException {
-        if (!placementRepository.existsById(placementId))
-            throw new ResourceNotFoundException("Placement with id '" + placementId + "' not found");
-        List<Rent> rents = rentRepository.findByPlacementId(placementId);
-        if (rents.isEmpty()) throw new ResourceNotFoundException("Nothing was found");
-        return rents;
-    }
-
-    public List<Rent> getRentsByResponsibleId(Long responsibleId) throws ResourceNotFoundException {
-        if (!responsibleRepository.existsById(responsibleId))
-            throw new ResourceNotFoundException("Responsible with id '" + responsibleId + "' not found");
-        List<Rent> rents = rentRepository.findByResponsibleId(responsibleId);
-        if (rents.isEmpty()) throw new ResourceNotFoundException("Nothing was found");
-        return rents;
-    }
-
-    public List<Rent> getRentsByUser(User principal, Boolean isClosed) {
+    public List<RentDto.Response.UserUnclosed> getUnclosedByUser(User principal) {
         Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
-        List<Rent> rents = rentRepository.findByResponsibleId(responsible.getId());
-        if (isClosed)
-            rents = rents.stream().filter(r -> r.getEndDateTime() != null).collect(Collectors.toList());
-        else
-            rents = rents.stream().filter(r -> r.getEndDateTime() == null).collect(Collectors.toList());
-        return rents;
+        List<Rent> rents = rentRepository.findUnclosedByResponsibleId(responsible.getId());
+        return rents.stream().map(RentMappingUtils::toDtoUserUnclosed).toList();
     }
 
-    public void createRent(Long equipmentId, Long placementId, User principal, Rent rent)
+    @Transactional
+    public Rent create(RentDto.Request.Create request, User principal)
             throws ResourceNotFoundException, ActionNotAllowedException {
-        Equipment equipment = equipmentRepository.findById(equipmentId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" + equipmentId + "' not found"));
+        Equipment equipment = equipmentRepository.findById(request.getEquipment().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" +
+                                request.getEquipment().getId() + "' not found"));
+        placementService.getById(request.getPlacement().getId());
         if (equipment.isAlreadyRented())
             throw new ActionNotAllowedException("Equipment '" + equipment.getName() + "' is already rented");
+
         User user = userRepository.findByUsername(principal.getUsername()).get();
         Responsible responsible = user.getResponsible();
-        Placement placement = placementRepository.findById(placementId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Placement with id '" + placementId + "' not found"));
-        rent.setCreateDateTime(LocalDateTime.now());
-        rent.setEquipment(equipment);
-        rent.setResponsible(responsible);
-        rent.setPlacement(placement);
-        rentRepository.save(rent);
+        Rent create = RentMappingUtils.fromDto(request);
+        create.setCreateDateTime(LocalDateTime.now());
+        create.setResponsible(responsible);
+        return rentRepository.save(create);
     }
 
-    public void closeRentById(Long id) throws ResourceNotFoundException {
-        Rent rentToUpdate = rentRepository.findById(id)
+    // TODO Do impossible to close others rent by user
+    public void closeRent(Long id) throws ResourceNotFoundException {
+        Rent update = rentRepository
+                .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rent with id '" + id + "' not found"));
-        rentToUpdate.setEndDateTime(LocalDateTime.now());
-        rentRepository.save(rentToUpdate);
+        update.setEndDateTime(LocalDateTime.now());
+        rentRepository.save(update);
     }
 
-    public void deleteRentById(Long id) throws ResourceNotFoundException, ActionNotAllowedException {
-        Rent rentToDelete = rentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Rent with id: " + id + " not found"));
-        if (rentToDelete.getEndDateTime() == null)
+    public void delete(Long id) throws ResourceNotFoundException, ActionNotAllowedException {
+        Rent rent = rentRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Rent with id '" + id + "' not found"));
+        if (rent.getEndDateTime() == null)
             throw new ActionNotAllowedException("Rent isn't close");
         rentRepository.deleteById(id);
     }
@@ -139,7 +122,7 @@ public class RentService {
     public void deleteRentByEquipmentId(Long equipmentId)
             throws ResourceNotFoundException, ActionNotAllowedException {
         if (!equipmentRepository.existsById(equipmentId)) {
-            throw new ResourceNotFoundException("Equipment with id: " + equipmentId + " not found");
+            throw new ResourceNotFoundException("Equipment with id '" + equipmentId + "' not found");
         }
         if (rentRepository.findByEquipmentId(equipmentId).stream().anyMatch(r -> r.getEndDateTime() == null))
             throw new ActionNotAllowedException("There is the rent, that doesn't closed");

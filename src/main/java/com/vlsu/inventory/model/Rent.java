@@ -15,6 +15,16 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "rent")
+@NamedEntityGraph(name = "Rent.equipment.placement.responsible",
+    attributeNodes = {
+        @NamedAttributeNode(value = "placement"),
+            @NamedAttributeNode(value = "equipment"),
+            @NamedAttributeNode(value = "responsible", subgraph = "responsible.user")
+    },
+        subgraphs = {
+            @NamedSubgraph(name = "responsible.user", attributeNodes = @NamedAttributeNode("user"))
+        }
+)
 public class Rent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -5,7 +5,6 @@ import com.vlsu.inventory.model.Rent;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PUBLIC)
 public class RentMappingUtils {
 
     /**
@@ -14,11 +13,19 @@ public class RentMappingUtils {
      * @param dto Rent DTO create request
      * @return Rent entity
      */
-    static Rent fromDto(RentDto.Request.Create dto) {
+    public static Rent fromDto(RentDto.Request.Create dto) {
         Rent rent = new Rent();
         rent.setDescription(dto.getDescription());
         rent.setEquipment(EquipmentMappingUtils.fromDto(dto.getEquipment()));
+        rent.setPlacement(PlacementMappingUtils.fromDto(dto.getPlacement()));
+        return rent;
+    }
+
+    public static Rent fromDto(RentDto.Response.Default dto) {
+        Rent rent = new Rent();
+        rent.setDescription(dto.getDescription());
         rent.setResponsible(ResponsibleMappingUtils.fromDto(dto.getResponsible()));
+        rent.setEquipment(EquipmentMappingUtils.fromDto(dto.getEquipment()));
         rent.setPlacement(PlacementMappingUtils.fromDto(dto.getPlacement()));
         return rent;
     }
@@ -28,7 +35,7 @@ public class RentMappingUtils {
      * @param rent Rent entity
      * @return Rent DTO response
      */
-    static RentDto.Response.Default toDto(Rent rent) {
+    public static RentDto.Response.Default toDto(Rent rent) {
         return new RentDto.Response.Default(
                 rent.getId(),
                 rent.getCreateDateTime(),
@@ -46,7 +53,7 @@ public class RentMappingUtils {
      * @param rent Rent entity
      * @return Rent DTO User's unclosed rents response
      */
-    static RentDto.Response.UserUnclosed toDtoUserUnclosed(Rent rent) {
+    public static RentDto.Response.UserUnclosed toDtoUserUnclosed(Rent rent) {
         return new RentDto.Response.UserUnclosed(
                 rent.getId(),
                 rent.getCreateDateTime(),

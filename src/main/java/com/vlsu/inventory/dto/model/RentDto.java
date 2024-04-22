@@ -20,10 +20,9 @@ public enum RentDto {;
     public enum Request {;
 
         @Getter @AllArgsConstructor
-        public static class Create implements Description, Equipment, Responsible, Placement {
+        public static class Create implements Description, Equipment, Placement {
             String description;
             EquipmentDto.Response.Public equipment;
-            ResponsibleDto.Response.WithoutDepartment responsible;
             PlacementDto.Response.Default placement;
         }
     }

@@ -111,7 +111,7 @@ public class ResponsibleMappingUtils {
     public static ResponsibleDto.Response.WithoutDepartment toDtoWithoutDepartment(Responsible responsible) {
         return ResponsibleDto.Response.WithoutDepartment.builder()
                 .id(responsible.getId())
-                .lastName(responsible.getFirstName())
+                .lastName(responsible.getLastName())
                 .firstName(responsible.getFirstName())
                 .patronymic(responsible.getPatronymic())
                 .position(responsible.getPosition())

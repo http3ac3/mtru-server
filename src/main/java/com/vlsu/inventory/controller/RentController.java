@@ -1,5 +1,6 @@
 package com.vlsu.inventory.controller;
 
+import com.vlsu.inventory.dto.model.RentDto;
 import com.vlsu.inventory.model.Rent;
 import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.security.UserDetailsImpl;
@@ -26,6 +27,7 @@ public class RentController {
 
     RentService rentService;
 
+    // TODO Create Rent filter request DTO
     @GetMapping("/rents")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
     public ResponseEntity<?> getAllByParams(
@@ -40,103 +42,52 @@ public class RentController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "50") int size) {
         try {
-            List<Rent> rents = rentService.getAllRentsByParams(
-                    createDateTimeFrom, createDateTimeTo, endDateTimeFrom, endDateTimeTo, isClosed, equipmentId, responsibleId, placementId);
-            return new ResponseEntity<>(rents, HttpStatus.OK);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception   .getMessage(), HttpStatus.BAD_REQUEST);
+            List<RentDto.Response.Default> rents = rentService.getAllByParams(
+                    createDateTimeFrom, createDateTimeTo, endDateTimeFrom, endDateTimeTo,
+                    isClosed, equipmentId, responsibleId, placementId);
+            return ResponseEntity.ok(rents);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @GetMapping("/rents/my")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getRentsOfUser(
-            @AuthenticationPrincipal User principal,
-            @RequestParam Boolean isClosed) {
+            @AuthenticationPrincipal User principal) {
         try {
-            return new ResponseEntity<>(rentService.getRentsByUser(principal, isClosed), HttpStatus.OK);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @GetMapping("/placements/{placementId}/rents")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
-    public ResponseEntity<?> getRentsByPlacementId(
-            @PathVariable Long placementId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "50") int size) {
-        try {
-            List<Rent> rents = rentService.getRentsByPlacementId(placementId);
-            return new ResponseEntity<>(RentService.getRentsPageable(rents, page, size), HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @GetMapping("/responsible/{responsibleId}/rents")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
-    public ResponseEntity<?> getRentsByResponsibleId(
-            @PathVariable Long responsibleId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "50") int size) {
-        try {
-            List<Rent> rents = rentService.getRentsByResponsibleId(responsibleId);
-            return new ResponseEntity<>(RentService.getRentsPageable(rents, page, size), HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @GetMapping("/equipment/{equipmentId}/rents")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
-    public ResponseEntity<?> getRentsByEquipmentId(
-            @PathVariable Long equipmentId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "50") int size) {
-        try {
-            List<Rent> rents = rentService.getRentsByEquipmentId(equipmentId);
-            return new ResponseEntity<>(RentService.getRentsPageable(rents, page, size), HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(rentService.getUnclosedByUser(principal));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @PostMapping("/rents")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> createRent(
+    public ResponseEntity<?> create(
             @AuthenticationPrincipal User principal,
-            @RequestBody Rent rent) {
-        System.out.println(rent.getPlacement().getId());
+            @RequestBody RentDto.Request.Create request) {
         try {
-            rentService.createRent(rent.getEquipment().getId(), rent.getPlacement().getId(), principal, rent);
-
-            return new ResponseEntity<>(rent, HttpStatus.CREATED);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ActionNotAllowedException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.LOCKED);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(rentService.create(request, principal));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ActionNotAllowedException e) {
+            return ResponseEntity.status(HttpStatus.LOCKED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @PutMapping("/rents/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> closeRent(@PathVariable Long id) {
+    public ResponseEntity<?> close(@PathVariable Long id) {
         try {
-            rentService.closeRentById(id);
-            return new ResponseEntity<>("Взятие завершено", HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            rentService.closeRent(id);
+            return ResponseEntity.ok("Взятие завершено");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
@@ -146,27 +97,27 @@ public class RentController {
         try {
             rentService.deleteRentByEquipmentId(equipmentId);
             return new ResponseEntity<>("Данные были успешно удалены", HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ActionNotAllowedException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.LOCKED);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ActionNotAllowedException e) {
+            return ResponseEntity.status(HttpStatus.LOCKED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @DeleteMapping("/rents/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
-    public ResponseEntity<?> deleteRentById(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
-            rentService.deleteRentById(id);
-            return new ResponseEntity<>("Данные были успешно удалены", HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ActionNotAllowedException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.LOCKED);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            rentService.delete(id);
+            return ResponseEntity.ok("Данные были успешно удалены");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ActionNotAllowedException e) {
+            return ResponseEntity.status(HttpStatus.LOCKED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
