@@ -1,13 +1,12 @@
 package com.vlsu.inventory.service;
 
-import com.vlsu.inventory.model.Department;
-import com.vlsu.inventory.model.Equipment;
+import com.vlsu.inventory.dto.model.ResponsibleDto;
 import com.vlsu.inventory.model.Responsible;
-import com.vlsu.inventory.repository.DepartmentRepository;
 import com.vlsu.inventory.repository.ResponsibleRepository;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import com.vlsu.inventory.util.mapping.ResponsibleMappingUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,9 +26,10 @@ import java.util.Map;
 public class ResponsibleService {
 
     ResponsibleRepository responsibleRepository;
-    DepartmentRepository departmentRepository;
+    DepartmentService departmentService;
 
-    public List<Responsible> getAllResponsible(
+    // TODO Fix fetching User and Role info with Responsible data
+    public List<ResponsibleDto.Response.Default> getAll(
             String firstName,
             String lastName,
             Boolean isFinanciallyResponsible,
@@ -48,61 +47,46 @@ public class ResponsibleService {
         if (departmentId != null) {
             filter = filter.and(ResponsibleRepository.departmentIdEquals(departmentId));
         }
-        return responsibleRepository.findAll(filter);
+        List<Responsible> responsibleList = responsibleRepository.findAll(filter);
+        return responsibleList.stream().map(ResponsibleMappingUtils::toDto).toList();
     }
 
-    public Responsible getResponsibleById(Long id) throws ResourceNotFoundException {
-        return responsibleRepository.findById(id)
+    public ResponsibleDto.Response.Default getById(Long id) throws ResourceNotFoundException {
+        Responsible responsible = responsibleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Responsible with id '" + id + "' not found"));
+        return ResponsibleMappingUtils.toDto(responsible);
     }
 
-    public List<Responsible> getResponsibleByDepartmentId(Long departmentId) throws ResourceNotFoundException {
-        if (!departmentRepository.existsById(departmentId))
-            throw new ResourceNotFoundException("Department with id '" + departmentId + "' not found");
-        List<Responsible> responsible = responsibleRepository.findByDepartmentId(departmentId);
-        if (responsible.isEmpty()) {
-            throw new ResourceNotFoundException("Responsible with department id '" + departmentId + "' not found");
+    public Responsible create(ResponsibleDto.Request.Create request) throws ResourceNotFoundException {
+        departmentService.getById(request.getDepartment().getId());
+        Responsible create = ResponsibleMappingUtils.fromDto(request);
+        System.out.println(create.getPhoneNumber());
+        return responsibleRepository.save(create);
+    }
+
+    public Responsible update(ResponsibleDto.Request.Update request) throws ResourceNotFoundException {
+        departmentService.getById(request.getDepartment().getId());
+        if (!responsibleRepository.existsById(request.getId())) {
+            throw new ResourceNotFoundException("Responsible with id '" + request.getId() + "' not found");
         }
-        return responsible;
+        Responsible update = ResponsibleMappingUtils.fromDto(request);
+        return responsibleRepository.save(update);
     }
 
-    public void createResponsible(Long departmentId, Responsible responsibleRequest)
-            throws ResourceNotFoundException {
-            Responsible responsible = departmentRepository.findById(departmentId).map(department -> {
-                responsibleRequest.setDepartment(department);
-                return responsibleRepository.save(responsibleRequest);
-            }).orElseThrow(() -> new ResourceNotFoundException("Department with id '" + departmentId + "' not found"));
-        responsibleRepository.save(responsible);
-    }
-
-    public void updateResponsibleById(Long id, Long departmentId, Responsible responsibleRequest)
-            throws ResourceNotFoundException {
-        Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Department with id '" + departmentId + "' not found"));
-        Responsible responsible = responsibleRepository.findById(id)
+    // TODO Remove User account with deleting Responsible
+    // TODO Check only unclosed Rents references for deleting Responsible
+    public void delete(Long id) throws ResourceNotFoundException, ResourceHasDependenciesException {
+        Responsible responsible = responsibleRepository
+                .findWithEquipmentById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Responsible with id '" + id + "' not found"));
-        responsible.setFirstName(responsibleRequest.getFirstName());
-        responsible.setLastName(responsibleRequest.getLastName());
-        responsible.setPatronymic(responsibleRequest.getPatronymic());
-        responsible.setPhoneNumber(responsibleRequest.getPhoneNumber());
-        responsible.setFinanciallyResponsible(responsibleRequest.isFinanciallyResponsible());
-        responsible.setPosition(responsibleRequest.getPosition());
-        responsible.setDepartment(department);
-        responsibleRepository.save(responsible);
-    }
-
-    public void deleteById(Long id)
-            throws ResourceNotFoundException, ResourceHasDependenciesException {
-        Responsible responsibleToDelete = responsibleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Responsible with id '" + id + "' not found"));
-        if (!responsibleToDelete.getEquipment().isEmpty()) {
+        if (!responsible.getEquipment().isEmpty()) {
             throw new ResourceHasDependenciesException("Responsible with id '" + id + "' has relations with equipment");
         }
-        else if (!responsibleToDelete.getRents().isEmpty()) {
+        else if (!responsible.getRents().isEmpty()) {
             throw new ResourceHasDependenciesException("Responsible with id '" + id + "' has relations with rents");
         }
-        else if (responsibleToDelete.getUser() != null) {
+        else if (responsible.getUser() != null) {
             throw new ResourceHasDependenciesException("Responsible with id '" + id + "' is associate with user");
         }
         responsibleRepository.deleteById(id);

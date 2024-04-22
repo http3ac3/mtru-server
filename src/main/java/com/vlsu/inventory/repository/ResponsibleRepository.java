@@ -5,14 +5,17 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ResponsibleRepository extends JpaRepository<Responsible, Long>, JpaSpecificationExecutor<Responsible> {
     @Override
-    @EntityGraph(type = EntityGraph.EntityGraphType.FETCH, attributePaths = { "department", "user" })
+    @EntityGraph(attributePaths = { "department", "user" })
     List<Responsible> findAll(Specification<Responsible> spec);
-    List<Responsible> findByDepartmentId(Long departmentId);
+    @Query("SELECT r FROM Responsible r LEFT JOIN FETCH r.equipment WHERE r.id = ?1")
+    Optional<Responsible> findWithEquipmentById(Long id);
     static Specification<Responsible> isFinanciallyResponsible(Boolean isFinanciallyResponsible) {
         return (responsible, query, criteriaBuilder) -> criteriaBuilder.equal(responsible
                 .get("isFinanciallyResponsible"), isFinanciallyResponsible);

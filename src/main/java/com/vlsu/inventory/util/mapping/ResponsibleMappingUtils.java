@@ -2,10 +2,7 @@ package com.vlsu.inventory.util.mapping;
 
 import com.vlsu.inventory.dto.model.ResponsibleDto;
 import com.vlsu.inventory.model.Responsible;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PUBLIC)
 public class ResponsibleMappingUtils {
 
     /**
@@ -14,13 +11,13 @@ public class ResponsibleMappingUtils {
      * @param dto Responsible DTO create request
      * @return Responsible entity
      */
-    static Responsible fromDto(ResponsibleDto.Request.Create dto) {
+    public static Responsible fromDto(ResponsibleDto.Request.Create dto) {
         Responsible responsible =  new Responsible(
                 dto.getFirstName(),
                 dto.getLastName(),
                 dto.getPatronymic(),
-                dto.getPhoneNumber(),
                 dto.getPosition(),
+                dto.getPhoneNumber(),
                 dto.isFinanciallyResponsible()
         );
         responsible.setDepartment(DepartmentMappingUtils.fromDto(dto.getDepartment()));
@@ -33,13 +30,13 @@ public class ResponsibleMappingUtils {
      * @param dto Responsible DTO update request
      * @return Responsible entity object
      */
-    static Responsible fromDto(ResponsibleDto.Request.Update dto) {
+    public static Responsible fromDto(ResponsibleDto.Request.Update dto) {
         Responsible responsible =  new Responsible(
                 dto.getFirstName(),
                 dto.getLastName(),
                 dto.getPatronymic(),
-                dto.getPhoneNumber(),
                 dto.getPosition(),
+                dto.getPhoneNumber(),
                 dto.isFinanciallyResponsible()
         );
         responsible.setId(dto.getId());
@@ -53,13 +50,13 @@ public class ResponsibleMappingUtils {
      * @param dto Responsible DTO response
      * @return Responsible entity
      */
-    static Responsible fromDto(ResponsibleDto.Response.Default dto) {
+    public static Responsible fromDto(ResponsibleDto.Response.Default dto) {
         Responsible responsible =  new Responsible(
                 dto.getFirstName(),
                 dto.getLastName(),
                 dto.getPatronymic(),
-                dto.getPhoneNumber(),
                 dto.getPosition(),
+                dto.getPhoneNumber(),
                 dto.isFinanciallyResponsible()
         );
         responsible.setId(dto.getId());
@@ -73,13 +70,13 @@ public class ResponsibleMappingUtils {
      * @param dto Responsible DTO response without Department
      * @return Responsible entity
      */
-    static Responsible fromDto(ResponsibleDto.Response.WithoutDepartment dto) {
+    public static Responsible fromDto(ResponsibleDto.Response.WithoutDepartment dto) {
         Responsible responsible =  new Responsible(
                 dto.getFirstName(),
                 dto.getLastName(),
                 dto.getPatronymic(),
-                dto.getPhoneNumber(),
                 dto.getPosition(),
+                dto.getPhoneNumber(),
                 dto.isFinanciallyResponsible()
         );
         responsible.setId(dto.getId());
@@ -92,7 +89,7 @@ public class ResponsibleMappingUtils {
      * @param responsible Responsible entity
      * @return Responsible DTO response
      */
-    static ResponsibleDto.Response.Default toDto(Responsible responsible) {
+    public static ResponsibleDto.Response.Default toDto(Responsible responsible) {
         return ResponsibleDto.Response.Default.builder()
                 .id(responsible.getId())
                 .lastName(responsible.getFirstName())
@@ -111,7 +108,7 @@ public class ResponsibleMappingUtils {
      * @param responsible Responsible entity
      * @return Responsible DTO without Department
      */
-    static ResponsibleDto.Response.WithoutDepartment toDtoWithoutDepartment(Responsible responsible) {
+    public static ResponsibleDto.Response.WithoutDepartment toDtoWithoutDepartment(Responsible responsible) {
         return ResponsibleDto.Response.WithoutDepartment.builder()
                 .id(responsible.getId())
                 .lastName(responsible.getFirstName())

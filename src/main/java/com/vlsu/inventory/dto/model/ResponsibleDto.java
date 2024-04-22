@@ -1,16 +1,7 @@
 package com.vlsu.inventory.dto.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.vlsu.inventory.model.Department;
-import com.vlsu.inventory.model.Equipment;
-import com.vlsu.inventory.model.Rent;
-import com.vlsu.inventory.model.User;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public enum ResponsibleDto {;
@@ -22,7 +13,6 @@ public enum ResponsibleDto {;
     interface PhoneNumber { String getPhoneNumber(); }
     interface IsFinanciallyResponsible { boolean isFinanciallyResponsible(); }
     interface Department { DepartmentDto.Response.Default getDepartment(); }
-    // User user;
 
     public enum Request {;
         @Getter @Builder

@@ -1,6 +1,6 @@
 package com.vlsu.inventory.controller;
 
-import com.vlsu.inventory.model.Department;
+import com.vlsu.inventory.dto.model.ResponsibleDto;
 import com.vlsu.inventory.model.Responsible;
 import com.vlsu.inventory.service.ResponsibleService;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -24,8 +23,9 @@ public class ResponsibleController {
 
     ResponsibleService responsibleService;
 
+    // TODO Do fetching responsible without accounts with Responsible DTO usage
     @GetMapping("/responsible")
-    public ResponseEntity<?> getAllResponsible(
+    public ResponseEntity<?> getAll(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
             @RequestParam(defaultValue = "1") int page,
@@ -34,84 +34,62 @@ public class ResponsibleController {
             @RequestParam(required = false) Long departmentId,
             @RequestParam(required = false) Boolean hasAccount) {
         try {
-            page = page - 1;
-            List<Responsible> responsibleList = responsibleService.getAllResponsible(firstName, lastName, isFinanciallyResponsible, departmentId);
-
-            if (hasAccount != null && !hasAccount) {
-                List<Responsible> withoutAccountResponsible = responsibleList.stream().filter(r -> r.getUser() == null).toList();
-                return new ResponseEntity<>(withoutAccountResponsible, HttpStatus.OK);
-            }
-            // return new ResponseEntity<>(ResponsibleService.getResponsibleByPage(responsibleList, page, size), HttpStatus.OK);
-            return new ResponseEntity<>(responsibleList, HttpStatus.OK);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @GetMapping("/departments/{departmentId}/responsible")
-    public ResponseEntity<?> getResponsibleByDepartmentId(@PathVariable Long departmentId) {
-        try {
-            return new ResponseEntity<>(responsibleService.getResponsibleByDepartmentId(departmentId), HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            List<ResponsibleDto.Response.Default> responsibleList =
+                    responsibleService.getAll(firstName, lastName, isFinanciallyResponsible, departmentId);
+            return ResponseEntity.ok(responsibleList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @GetMapping("/responsible/{id}")
-    public ResponseEntity<?> getResponsibleById(@PathVariable Long id) {
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         try {
-            return new ResponseEntity<>(responsibleService.getResponsibleById(id), HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(),HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(),HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(responsibleService.getById(id));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @PostMapping("/departments/{departmentId}/responsible")
+    @PostMapping("/responsible")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createResponsible(
-            @PathVariable Long departmentId,
-            @RequestBody Responsible responsibleRequest) {
+    public ResponseEntity<?> create(@RequestBody ResponsibleDto.Request.Create request) {
         try {
-            responsibleService.createResponsible(departmentId, responsibleRequest);
-            return new ResponseEntity<>(responsibleRequest, HttpStatus.CREATED);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            Responsible created = responsibleService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @PutMapping("/responsible/{id}")
+    @PutMapping("/responsible")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updateResponsibleById(
-            @PathVariable Long id,
-            @RequestBody Responsible responsibleRequest) {
+    public ResponseEntity<?> update(@RequestBody ResponsibleDto.Request.Update request) {
         try {
-            responsibleService.updateResponsibleById(id, responsibleRequest.getDepartment().getId(), responsibleRequest);
-            return new ResponseEntity<>("Данные были успешно обновлены", HttpStatus.OK);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(responsibleService.update(request));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @DeleteMapping("/responsible/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> deleteResponsibleById(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id) {
         try {
-            responsibleService.deleteById(id);
-            return new ResponseEntity<>("Данные были успешно удалены", HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ResourceHasDependenciesException exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            responsibleService.delete(id);
+            return ResponseEntity.ok("Данные были успешно удалены");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ResourceHasDependenciesException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
