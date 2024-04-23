@@ -1,5 +1,6 @@
 package com.vlsu.inventory.service;
 
+import com.vlsu.inventory.dto.model.UserDto;
 import com.vlsu.inventory.model.Responsible;
 import com.vlsu.inventory.model.Role;
 import com.vlsu.inventory.model.User;
@@ -7,6 +8,7 @@ import com.vlsu.inventory.repository.ResponsibleRepository;
 import com.vlsu.inventory.repository.RoleRepository;
 import com.vlsu.inventory.repository.UserRepository;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import com.vlsu.inventory.util.mapping.UserMappingUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -75,9 +77,9 @@ public class UserService {
     public UserDetailsService userDetailsService() {
         return this::getByUsername;
     }
-    public User getCurrentUser() {
+    public UserDto.Response.WithoutResponsible getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return getByUsername(username);
+        return UserMappingUtils.toDtoWithoutResponsible(getByUsername(username));
     }
 
     public User getByUsername(String username) {

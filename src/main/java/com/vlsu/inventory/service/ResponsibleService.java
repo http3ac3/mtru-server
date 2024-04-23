@@ -2,7 +2,9 @@ package com.vlsu.inventory.service;
 
 import com.vlsu.inventory.dto.model.ResponsibleDto;
 import com.vlsu.inventory.model.Responsible;
+import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.repository.ResponsibleRepository;
+import com.vlsu.inventory.repository.UserRepository;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
@@ -27,6 +29,7 @@ public class ResponsibleService {
 
     ResponsibleRepository responsibleRepository;
     DepartmentService departmentService;
+    UserRepository userRepository;
 
     // TODO Fix fetching User and Role info with Responsible data
     public List<ResponsibleDto.Response.Default> getAll(
@@ -56,6 +59,11 @@ public class ResponsibleService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Responsible with id '" + id + "' not found"));
         return ResponsibleMappingUtils.toDto(responsible);
+    }
+
+    public ResponsibleDto.Response.WithoutDepartment getByPrincipal(User principal) {
+        Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
+        return ResponsibleMappingUtils.toDtoWithoutDepartment(responsible);
     }
 
     public Responsible create(ResponsibleDto.Request.Create request) throws ResourceNotFoundException {

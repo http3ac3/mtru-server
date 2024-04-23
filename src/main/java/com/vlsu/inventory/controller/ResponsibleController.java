@@ -2,6 +2,7 @@ package com.vlsu.inventory.controller;
 
 import com.vlsu.inventory.dto.model.ResponsibleDto;
 import com.vlsu.inventory.model.Responsible;
+import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.service.ResponsibleService;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -51,6 +53,11 @@ public class ResponsibleController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/responsible/current-user")
+    public ResponseEntity<?> getByPrincipal(@AuthenticationPrincipal User principal) {
+        return ResponseEntity.ok(responsibleService.getByPrincipal(principal));
     }
 
     @PostMapping("/responsible")
