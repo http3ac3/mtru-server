@@ -1,5 +1,6 @@
 package com.vlsu.inventory.dto.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -23,6 +24,7 @@ public enum ResponsibleDto {;
             String patronymic;
             String position;
             String phoneNumber;
+            @JsonProperty(value = "financiallyResponsible")
             boolean isFinanciallyResponsible;
             DepartmentDto.Response.Default department;
         }
@@ -36,6 +38,7 @@ public enum ResponsibleDto {;
             String patronymic;
             String position;
             String phoneNumber;
+            @JsonProperty(value = "financiallyResponsible")
             boolean isFinanciallyResponsible;
             DepartmentDto.Response.Default department;
         }

@@ -76,6 +76,7 @@ public class ResponsibleController {
     @PutMapping("/responsible")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> update(@RequestBody ResponsibleDto.Request.Update request) {
+        System.out.println(request.isFinanciallyResponsible());
         try {
             return ResponseEntity.ok(responsibleService.update(request));
         } catch (ResourceNotFoundException e) {
