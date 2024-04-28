@@ -92,7 +92,7 @@ public class ResponsibleMappingUtils {
     public static ResponsibleDto.Response.Default toDto(Responsible responsible) {
         return ResponsibleDto.Response.Default.builder()
                 .id(responsible.getId())
-                .lastName(responsible.getFirstName())
+                .lastName(responsible.getLastName())
                 .firstName(responsible.getFirstName())
                 .patronymic(responsible.getPatronymic())
                 .position(responsible.getPosition())
