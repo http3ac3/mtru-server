@@ -7,6 +7,7 @@ import com.vlsu.inventory.model.Subcategory;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.cglib.core.Local;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,23 +28,30 @@ public enum EquipmentDto {;
     interface Responsible { ResponsibleDto.Response.WithoutDepartment getResponsible(); }
     interface Subcategory { SubcategoryDto.Response.WithoutCategory getSubcategory(); }
     interface Placement { PlacementDto.Response.Default getPlacement(); }
+    interface ImageFile { MultipartFile getImage(); }
+    interface ResponsibleId { Long getResponsibleId(); }
+    interface PlacementId { Long getPlacementId(); }
+    interface SubcategoryId { Long getSubcategoryId();}
 
-    public enum Request {;
+        public enum Request {;
         @Getter @Builder
         public static class Create implements
                 InventoryNumber, Name, InitialCost,
-                CommissioningDate, CommissioningActNumber, Description, ImageData,
-                Responsible, Subcategory, Placement {
+                CommissioningDate, CommissioningActNumber, Description, ImageFile,
+                ResponsibleId, PlacementId, SubcategoryId {
             String inventoryNumber;
             String name;
             BigDecimal initialCost;
             LocalDate commissioningDate;
             String commissioningActNumber;
             String description;
-            String imageData;
-            ResponsibleDto.Response.WithoutDepartment responsible;
-            SubcategoryDto.Response.WithoutCategory subcategory;
-            PlacementDto.Response.Default placement;
+            MultipartFile image;
+//            ResponsibleDto.Response.WithoutDepartment responsible;
+//            SubcategoryDto.Response.WithoutCategory subcategory;
+//            PlacementDto.Response.Default placement;
+            Long responsibleId;
+            Long placementId;
+            Long subcategoryId;
         }
 
         @Getter @Builder

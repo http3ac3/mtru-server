@@ -8,7 +8,9 @@ import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
 import com.vlsu.inventory.util.mapping.EquipmentMappingUtils;
+import com.vlsu.inventory.util.mapping.PlacementMappingUtils;
 import com.vlsu.inventory.util.mapping.ResponsibleMappingUtils;
+import com.vlsu.inventory.util.mapping.SubcategoryMappingUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -37,6 +40,7 @@ public class EquipmentService {
     PlacementService placementService;
     SubcategoryService subcategoryService;
     UserRepository userRepository;
+    ImageService imageService;
 
     public List<EquipmentDto.Response.Default> getAllByParams(
             String inventoryNumber, String name, BigDecimal initialCostFrom, BigDecimal initialCostTo,
@@ -83,15 +87,16 @@ public class EquipmentService {
     }
 
     // TODO Simplify is admin user check and setting responsible to equipment
-    public EquipmentDto.Request.Create create(EquipmentDto.Request.Create request, User principal)
-            throws ResourceNotFoundException, ActionNotAllowedException {
+    public void create(EquipmentDto.Request.Create request, User principal)
+            throws Exception {
 
-        placementService.getById(request.getPlacement().getId());
-        subcategoryService.getById(request.getSubcategory().getId());
+        String path = imageService.save(request.getImage(), request.getInventoryNumber());
+        Placement placement = PlacementMappingUtils.fromDto(placementService.getById(request.getPlacementId()));
+        Subcategory subcategory = SubcategoryMappingUtils.fromDto(subcategoryService.getById(request.getSubcategoryId()));
 
         Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
         if (principal.isAdmin()) {
-            responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsible().getId()));
+            responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsibleId()));
             if (!responsible.isFinanciallyResponsible()) {
                 throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
                         + responsible.getFirstName() + " can't be financially responsible for equipment");
@@ -99,8 +104,10 @@ public class EquipmentService {
         }
         Equipment create = EquipmentMappingUtils.fromDto(request);
         create.setResponsible(responsible);
+        create.setPlacement(placement);
+        create.setSubcategory(subcategory);
+        create.setImageData(path);
         equipmentRepository.save(create);
-        return request;
     }
 
     public EquipmentDto.Request.Update update(EquipmentDto.Request.Update request, User principal)

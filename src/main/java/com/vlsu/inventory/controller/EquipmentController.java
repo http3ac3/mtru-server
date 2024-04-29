@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -69,10 +70,12 @@ public class EquipmentController {
 
     @PostMapping("/equipment")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
-    public ResponseEntity<?> create(@RequestBody EquipmentDto.Request.Create request,
-                                             @AuthenticationPrincipal User principal) {
+    public ResponseEntity<?> create(
+            @ModelAttribute EquipmentDto.Request.Create request,
+            @AuthenticationPrincipal User principal) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(equipmentService.create(request, principal));
+            equipmentService.create(request, principal);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ActionNotAllowedException e) {

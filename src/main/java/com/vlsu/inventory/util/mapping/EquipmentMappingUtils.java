@@ -13,10 +13,9 @@ public class EquipmentMappingUtils {
                 .commissioningDate(dto.getCommissioningDate())
                 .commissioningActNumber(dto.getCommissioningActNumber())
                 .description(dto.getDescription())
-                .imageData(dto.getImageData())
-                .responsible(ResponsibleMappingUtils.fromDto(dto.getResponsible()))
-                .placement(PlacementMappingUtils.fromDto(dto.getPlacement()))
-                .subcategory(SubcategoryMappingUtils.fromDto(dto.getSubcategory()))
+//                .responsible(ResponsibleMappingUtils.fromDto(dto.getResponsible()))
+//                .placement(PlacementMappingUtils.fromDto(dto.getPlacement()))
+//                .subcategory(SubcategoryMappingUtils.fromDto(dto.getSubcategory()))
                 .build();
     }
 
