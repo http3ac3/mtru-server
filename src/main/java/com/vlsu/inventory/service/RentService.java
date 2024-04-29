@@ -84,7 +84,7 @@ public class RentService {
     }
 
     @Transactional
-    public Rent create(RentDto.Request.Create request, User principal)
+    public RentDto.Request.Create create(RentDto.Request.Create request, User principal)
             throws ResourceNotFoundException, ActionNotAllowedException {
         Equipment equipment = equipmentRepository.findById(request.getEquipment().getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" +
@@ -98,7 +98,8 @@ public class RentService {
         Rent create = RentMappingUtils.fromDto(request);
         create.setCreateDateTime(LocalDateTime.now());
         create.setResponsible(responsible);
-        return rentRepository.save(create);
+        rentRepository.save(create);
+        return request;
     }
 
     // TODO Do impossible to close others rent by user

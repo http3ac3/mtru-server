@@ -18,10 +18,10 @@ public interface RentRepository extends JpaRepository<Rent, Long>, JpaSpecificat
     List<Rent> findAll(Specification<Rent> spec);
 
     @Query("SELECT r FROM Rent r " +
-            "LEFT JOIN FETCH r.equipment e " +
-            "LEFT JOIN FETCH r.placement p " +
-            "LEFT JOIN FETCH r.responsible resp " +
-            "WHERE resp.id = ?1 AND r.endDateTime = null")
+            "JOIN FETCH r.equipment e " +
+            "JOIN FETCH r.placement p " +
+            "JOIN FETCH r.responsible resp " +
+            "WHERE resp.id = ?1 AND r.endDateTime IS NULL")
     List<Rent> findUnclosedByResponsibleId(Long responsibleId);
 
     @Override
