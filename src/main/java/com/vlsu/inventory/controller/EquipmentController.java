@@ -1,7 +1,6 @@
 package com.vlsu.inventory.controller;
 
 import com.vlsu.inventory.dto.model.EquipmentDto;
-import com.vlsu.inventory.model.Equipment;
 import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.service.EquipmentService;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -88,10 +86,11 @@ public class EquipmentController {
     @PutMapping("/equipment")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
     public ResponseEntity<?> update(
-            @RequestBody EquipmentDto.Request.Update request,
+            @ModelAttribute EquipmentDto.Request.Update request,
             @AuthenticationPrincipal User principal) {
         try {
-            return ResponseEntity.ok(equipmentService.update(request, principal));
+            equipmentService.update(request, principal);
+            return ResponseEntity.ok().build();
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ActionNotAllowedException e) {

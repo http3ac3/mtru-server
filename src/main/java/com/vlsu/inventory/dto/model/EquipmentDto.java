@@ -1,12 +1,7 @@
 package com.vlsu.inventory.dto.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vlsu.inventory.model.Placement;
-import com.vlsu.inventory.model.Responsible;
-import com.vlsu.inventory.model.Subcategory;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.cglib.core.Local;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
@@ -57,8 +52,8 @@ public enum EquipmentDto {;
         @Getter @Builder
         public static class Update implements
                 Id, InventoryNumber, Name, CommissioningDate, CommissioningActNumber,
-                Description, ImageData, DecommissioningDate, DecommissioningActNumber,
-                Responsible, Subcategory, Placement {
+                Description, ImageFile, DecommissioningDate, DecommissioningActNumber,
+                ResponsibleId, PlacementId, SubcategoryId {
             Long id;
             String inventoryNumber;
             String name;
@@ -68,10 +63,13 @@ public enum EquipmentDto {;
             LocalDate decommissioningDate;
             String decommissioningActNumber;
             String description;
-            String imageData;
-            ResponsibleDto.Response.WithoutDepartment responsible;
-            SubcategoryDto.Response.WithoutCategory subcategory;
-            PlacementDto.Response.Default placement;
+            MultipartFile image;
+//            ResponsibleDto.Response.WithoutDepartment responsible;
+//            SubcategoryDto.Response.WithoutCategory subcategory;
+//            PlacementDto.Response.Default placement;
+            Long responsibleId;
+            Long placementId;
+            Long subcategoryId;
         }
     }
 

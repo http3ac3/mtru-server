@@ -2,8 +2,7 @@ package com.vlsu.inventory.util.mapping;
 
 import com.vlsu.inventory.dto.model.EquipmentDto;
 import com.vlsu.inventory.model.Equipment;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+
 public class EquipmentMappingUtils {
     public static Equipment fromDto(EquipmentDto.Request.Create dto) {
         return Equipment.builder()
@@ -36,10 +35,10 @@ public class EquipmentMappingUtils {
                 .decommissioningDate(dto.getDecommissioningDate())
                 .decommissioningActNumber(dto.getDecommissioningActNumber())
                 .description(dto.getDescription())
-                .imageData(dto.getImageData())
-                .responsible(ResponsibleMappingUtils.fromDto(dto.getResponsible()))
-                .placement(PlacementMappingUtils.fromDto(dto.getPlacement()))
-                .subcategory(SubcategoryMappingUtils.fromDto(dto.getSubcategory()))
+//                .imageData(dto.getImageData())
+//                .responsible(ResponsibleMappingUtils.fromDto(dto.getResponsible()))
+//                .placement(PlacementMappingUtils.fromDto(dto.getPlacement()))
+//                .subcategory(SubcategoryMappingUtils.fromDto(dto.getSubcategory()))
                 .build();
     }
 

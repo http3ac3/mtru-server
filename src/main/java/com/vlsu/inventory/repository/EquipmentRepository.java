@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.lang.NonNullApi;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,6 +23,9 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Jpa
 
     @Query("SELECT e FROM Equipment e LEFT JOIN FETCH e.rents r WHERE e.id = ?1")
     Optional<Equipment> findWithRentsById(Long id);
+
+    @Query(value = "UPDATE equipment SET image_data = ?2 WHERE id = ?1", nativeQuery = true)
+    boolean updateImageReference(Long id, String imagePath);
 
     List<Equipment> findByInventoryNumberStartingWith(String inventoryNumber);
     static Specification<Equipment> inventoryNumberStartsWith(String inventoryNumber) {

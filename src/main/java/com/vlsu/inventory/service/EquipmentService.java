@@ -20,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -87,10 +86,7 @@ public class EquipmentService {
     }
 
     // TODO Simplify is admin user check and setting responsible to equipment
-    public void create(EquipmentDto.Request.Create request, User principal)
-            throws Exception {
-
-        String path = imageService.save(request.getImage(), request.getInventoryNumber());
+    public void create(EquipmentDto.Request.Create request, User principal) throws Exception {
         Placement placement = PlacementMappingUtils.fromDto(placementService.getById(request.getPlacementId()));
         Subcategory subcategory = SubcategoryMappingUtils.fromDto(subcategoryService.getById(request.getSubcategoryId()));
 
@@ -106,34 +102,52 @@ public class EquipmentService {
         create.setResponsible(responsible);
         create.setPlacement(placement);
         create.setSubcategory(subcategory);
-        create.setImageData(path);
-        equipmentRepository.save(create);
+        Equipment saved = equipmentRepository.save(create);
+
+        if (request.getImage() != null) {
+            String path = imageService.save(request.getImage(), saved.getId());
+            try {
+                equipmentRepository.updateImageReference(saved.getId(), path);
+            } catch (Exception ignored) { }
+        }
     }
 
-    public EquipmentDto.Request.Update update(EquipmentDto.Request.Update request, User principal)
-            throws ResourceNotFoundException, ActionNotAllowedException {
-        if (!equipmentRepository.existsById(request.getId())) {
-            throw new ResourceNotFoundException("Equipment with id '" + request.getId() + "' not found");
-        }
-        placementService.getById(request.getPlacement().getId());
-        subcategoryService.getById(request.getSubcategory().getId());
+    public void update(EquipmentDto.Request.Update request, User principal) throws Exception {
+        Equipment equipment = equipmentRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" + request.getId() + "' not found"));
+
+        Placement placement = PlacementMappingUtils.fromDto(placementService.getById(request.getPlacementId()));
+        Subcategory subcategory = SubcategoryMappingUtils.fromDto(subcategoryService.getById(request.getSubcategoryId()));
 
         Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
 
-        if (!principal.isAdmin() && !Objects.equals(request.getResponsible().getId(), responsible.getId())) {
+        if (!principal.isAdmin() && !Objects.equals(request.getResponsibleId(), responsible.getId())) {
             throw new ActionNotAllowedException("Equipment with inventory number '" + request.getInventoryNumber() +
                     " doesn't belong to " + responsible.getLastName()  + " " + responsible.getFirstName());
         } else if (principal.isAdmin()) {
-            responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsible().getId()));
+            responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsibleId()));
             if (!responsible.isFinanciallyResponsible()) {
                 throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
                         + responsible.getFirstName() + " can't be financially responsible for equipment");
             }
         }
         Equipment update = EquipmentMappingUtils.fromDto(request);
+
         update.setResponsible(responsible);
+        update.setPlacement(placement);
+        update.setSubcategory(subcategory);
         equipmentRepository.save(update);
-        return request;
+
+        if (request.getImage() != null) {
+            if (equipment.getImageData() != null) {
+                imageService.deleteImage(equipment.getImageData());
+            }
+
+            String path = imageService.save(request.getImage(), request.getId());
+            try {
+                equipmentRepository.updateImageReference(request.getId(), path);
+            } catch (Exception ignored) { }
+        }
     }
 
     // TODO Do check only unclosed rents of deleting equipment
@@ -150,6 +164,10 @@ public class EquipmentService {
         if (!equipmentToDelete.getRents().isEmpty()) {
             throw new ResourceHasDependenciesException("Equipment with id: " + id + " has relations with rents");
         }
+
+        if (equipmentToDelete.getImageData() != null)
+            imageService.deleteImage(equipmentToDelete.getImageData());
+
         equipmentRepository.deleteById(id);
     }
 
