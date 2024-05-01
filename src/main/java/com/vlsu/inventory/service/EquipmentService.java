@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -111,10 +112,7 @@ public class EquipmentService {
         Equipment saved = equipmentRepository.save(create);
 
         if (request.getImage() != null) {
-            String path = imageService.save(request.getImage(), saved.getId());
-            try {
-                equipmentRepository.updateImageReference(saved.getId(), path);
-            } catch (Exception ignored) { }
+            saveImage(request.getImage(), saved.getId());
         }
     }
 
@@ -151,10 +149,7 @@ public class EquipmentService {
             if (imageData != null) {
                 imageService.deleteImage(imageData);
             }
-            String path = imageService.save(request.getImage(), request.getId());
-            try {
-                equipmentRepository.updateImageReference(request.getId(), path);
-            } catch (Exception ignored) { }
+            saveImage(request.getImage(), request.getId());
         }
     }
 
@@ -177,6 +172,13 @@ public class EquipmentService {
             imageService.deleteImage(equipmentToDelete.getImageData());
 
         equipmentRepository.deleteById(id);
+    }
+
+    private void saveImage(MultipartFile image, Long id) throws Exception {
+        String path = imageService.save(image, id);
+        try {
+            equipmentRepository.updateImageReference(id, path);
+        } catch (Exception ignored) { }
     }
 
     public static Map<String, Object> getEquipmentByPage(List<Equipment> equipment, int page, int size)
