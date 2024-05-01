@@ -27,6 +27,8 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Jpa
     @Query(value = "UPDATE equipment SET image_data = ?2 WHERE id = ?1", nativeQuery = true)
     boolean updateImageReference(Long id, String imagePath);
 
+    @Query(value = "SELECT image_data FROM equipment WHERE id = ?1", nativeQuery = true)
+    String findImageDataById(Long id);
     List<Equipment> findByInventoryNumberStartingWith(String inventoryNumber);
     static Specification<Equipment> inventoryNumberStartsWith(String inventoryNumber) {
         return (equipment, query, criteriaBuilder) -> criteriaBuilder

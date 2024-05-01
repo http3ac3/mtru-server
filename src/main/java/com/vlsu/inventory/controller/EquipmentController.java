@@ -66,6 +66,15 @@ public class EquipmentController {
         }
     }
 
+    @GetMapping("/equipment/{id}/image")
+    public ResponseEntity<String> getImageById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(equipmentService.getBase64ImageById(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/equipment")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_LABHEAD')")
     public ResponseEntity<?> create(

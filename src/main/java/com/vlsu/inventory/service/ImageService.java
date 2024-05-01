@@ -14,19 +14,22 @@ import java.util.Base64;
 @Service
 public class ImageService {
     private final String path = FileSystemView.getFileSystemView().getDefaultDirectory().getPath() + "\\Inventory Images";
-    public String save(MultipartFile image, Long inventoryNumber) throws Exception {
+    public String save(MultipartFile image, Long id) throws Exception {
         createDirectoryIfNotExists();
 
         if (image.isEmpty()) throw new Exception("Невозможно сохранить пустой файл");
 
-        Path imagePath = Paths.get(path, inventoryNumber + "." + image.getContentType().substring(6));
+        Path imagePath = Paths.get(path, id + "." + image.getContentType().substring(6));
         image.transferTo(imagePath);
         return imagePath.toString();
     }
 
     public String getImageBase64String(String path) throws IOException {
         File image = new File(path);
-        return Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(path)));
+        String format = path.substring(path.indexOf('.') + 1);
+        return "data:image/" + format
+                + ";base64, "
+                + Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(path)));
     }
 
     public void deleteImage(String path) {

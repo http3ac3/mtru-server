@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -85,6 +86,11 @@ public class EquipmentService {
         return EquipmentMappingUtils.toDto(equipment);
     }
 
+    public String getBase64ImageById(Long id) throws IOException {
+        String imagePath = equipmentRepository.findImageDataById(id);
+        return imageService.getImageBase64String(imagePath);
+    }
+
     // TODO Simplify is admin user check and setting responsible to equipment
     public void create(EquipmentDto.Request.Create request, User principal) throws Exception {
         Placement placement = PlacementMappingUtils.fromDto(placementService.getById(request.getPlacementId()));
@@ -116,6 +122,7 @@ public class EquipmentService {
         Equipment equipment = equipmentRepository.findById(request.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" + request.getId() + "' not found"));
 
+        String imageData = equipment.getImageData();
         Placement placement = PlacementMappingUtils.fromDto(placementService.getById(request.getPlacementId()));
         Subcategory subcategory = SubcategoryMappingUtils.fromDto(subcategoryService.getById(request.getSubcategoryId()));
 
@@ -131,18 +138,19 @@ public class EquipmentService {
                         + responsible.getFirstName() + " can't be financially responsible for equipment");
             }
         }
+
         Equipment update = EquipmentMappingUtils.fromDto(request);
 
         update.setResponsible(responsible);
         update.setPlacement(placement);
         update.setSubcategory(subcategory);
+        update.setImageData(imageData);
         equipmentRepository.save(update);
 
         if (request.getImage() != null) {
-            if (equipment.getImageData() != null) {
-                imageService.deleteImage(equipment.getImageData());
+            if (imageData != null) {
+                imageService.deleteImage(imageData);
             }
-
             String path = imageService.save(request.getImage(), request.getId());
             try {
                 equipmentRepository.updateImageReference(request.getId(), path);
