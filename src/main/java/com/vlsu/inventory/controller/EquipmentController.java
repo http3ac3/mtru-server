@@ -1,5 +1,6 @@
 package com.vlsu.inventory.controller;
 
+import com.vlsu.inventory.dto.ImageResponse;
 import com.vlsu.inventory.dto.model.EquipmentDto;
 import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.service.EquipmentService;
@@ -67,9 +68,10 @@ public class EquipmentController {
     }
 
     @GetMapping("/equipment/{id}/image")
-    public ResponseEntity<String> getImageById(@PathVariable Long id) {
+    public ResponseEntity<?> getImageById(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(equipmentService.getBase64ImageById(id));
+            ImageResponse response = new ImageResponse(equipmentService.getBase64ImageById(id));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
