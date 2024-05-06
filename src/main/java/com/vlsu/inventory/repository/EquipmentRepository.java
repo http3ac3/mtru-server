@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public interface EquipmentRepository extends JpaRepository<Equipment, Long>, JpaSpecificationExecutor<Equipment> {
     @Override
-    @EntityGraph(attributePaths = { "responsible", "placement", "subcategory"})
+    @EntityGraph(attributePaths = { "responsible", "placement", "subcategory", "rents"})
     List<Equipment> findAll(Specification<Equipment> spec);
 
     @Override
