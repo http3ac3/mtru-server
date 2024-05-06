@@ -3,11 +3,9 @@ package com.vlsu.inventory.service;
 import com.vlsu.inventory.dto.model.RentDto;
 import com.vlsu.inventory.model.*;
 import com.vlsu.inventory.repository.*;
-import com.vlsu.inventory.security.UserDetailsImpl;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
-import com.vlsu.inventory.util.mapping.EquipmentMappingUtils;
 import com.vlsu.inventory.util.mapping.RentMappingUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.vlsu.inventory.repository.RentRepository.*;
 
@@ -92,6 +89,8 @@ public class RentService {
         placementService.getById(request.getPlacement().getId());
         if (equipment.getUnclosedRent() != null)
             throw new ActionNotAllowedException("Equipment '" + equipment.getName() + "' is already rented");
+        else if (equipment.getDecommissioningDate() != null)
+            throw new ActionNotAllowedException("Equipment '" + equipment.getName() + "' is decommissioned");
 
         User user = userRepository.findByUsername(principal.getUsername()).get();
         Responsible responsible = user.getResponsible();
