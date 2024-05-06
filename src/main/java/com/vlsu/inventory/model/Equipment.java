@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -61,7 +62,7 @@ public class Equipment {
     @JoinColumn(name = "placement_id", referencedColumnName = "id")
     private Placement placement;
 
-    @OneToMany(mappedBy = "equipment", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "equipment", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<Rent> rents = new ArrayList<>();
 

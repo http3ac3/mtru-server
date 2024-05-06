@@ -11,6 +11,7 @@ import com.vlsu.inventory.util.mapping.EquipmentMappingUtils;
 import com.vlsu.inventory.util.mapping.PlacementMappingUtils;
 import com.vlsu.inventory.util.mapping.ResponsibleMappingUtils;
 import com.vlsu.inventory.util.mapping.SubcategoryMappingUtils;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -42,6 +43,7 @@ public class EquipmentService {
     SubcategoryService subcategoryService;
     UserRepository userRepository;
     ImageService imageService;
+    RentRepository rentRepository;
 
     public List<EquipmentDto.Response.Default> getAllByParams(
             String inventoryNumber, String name, BigDecimal initialCostFrom, BigDecimal initialCostTo,
@@ -156,7 +158,7 @@ public class EquipmentService {
         }
     }
 
-    // TODO Do check only unclosed rents of deleting equipment
+    @Transactional
     public void delete(Long id, User principal)
             throws ResourceNotFoundException, ResourceHasDependenciesException, ActionNotAllowedException {
         Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
@@ -167,9 +169,8 @@ public class EquipmentService {
             throw new ActionNotAllowedException("Equipment doesn't belong to responsible "
                     + responsible.getLastName() + " " + responsible.getLastName());
         }
-        if (!equipmentToDelete.getRents().isEmpty()) {
-            throw new ResourceHasDependenciesException("Equipment with id: " + id + " has relations with rents");
-        }
+
+        rentRepository.deleteByEquipmentId(id);
 
         if (equipmentToDelete.getImageData() != null)
             imageService.deleteImage(equipmentToDelete.getImageData());
