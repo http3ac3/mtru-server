@@ -79,7 +79,10 @@ public class Equipment {
         this.decommissioningActNumber = decommissioningActNumber;
     }
 
-    public boolean isAlreadyRented() {
-        return rents.stream().anyMatch(r -> r.getEndDateTime() == null);
+    public Rent getUnclosedRent() {
+        for (var r : this.rents) {
+            if (r.getEndDateTime() == null) return r;
+        }
+        return null;
     }
 }

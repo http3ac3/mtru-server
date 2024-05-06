@@ -23,6 +23,7 @@ public enum EquipmentDto {;
     interface Responsible { ResponsibleDto.Response.WithoutDepartment getResponsible(); }
     interface Subcategory { SubcategoryDto.Response.WithoutCategory getSubcategory(); }
     interface Placement { PlacementDto.Response.Default getPlacement(); }
+    interface CurrentRent { RentDto.Response.Default getCurrentRent(); }
     interface ImageFile { MultipartFile getImage(); }
     interface ResponsibleId { Long getResponsibleId(); }
     interface PlacementId { Long getPlacementId(); }
@@ -78,7 +79,7 @@ public enum EquipmentDto {;
         public static class Default implements
                 Id, InventoryNumber, Name, CommissioningDate, CommissioningActNumber,
                 Description, ImageData, DecommissioningDate, DecommissioningActNumber,
-                Responsible, Subcategory, Placement {
+                Responsible, Subcategory, Placement, CurrentRent {
             Long id;
             String inventoryNumber;
             String name;
@@ -92,6 +93,7 @@ public enum EquipmentDto {;
             ResponsibleDto.Response.WithoutDepartment responsible;
             SubcategoryDto.Response.WithoutCategory subcategory;
             PlacementDto.Response.Default placement;
+            RentDto.Response.Default currentRent;
         }
 
         @Getter @Builder

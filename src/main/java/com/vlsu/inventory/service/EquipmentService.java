@@ -77,6 +77,9 @@ public class EquipmentService {
         if (placementId != null)
             filter = filter.and(placementIdEquals(placementId));
         List<Equipment> equipment = equipmentRepository.findAll(filter);
+
+
+
         return equipment.stream().map(EquipmentMappingUtils::toDto).toList();
     }
 

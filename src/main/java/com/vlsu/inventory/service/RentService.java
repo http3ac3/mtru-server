@@ -90,7 +90,7 @@ public class RentService {
                         .orElseThrow(() -> new ResourceNotFoundException("Equipment with id '" +
                                 request.getEquipment().getId() + "' not found"));
         placementService.getById(request.getPlacement().getId());
-        if (equipment.isAlreadyRented())
+        if (equipment.getUnclosedRent() != null)
             throw new ActionNotAllowedException("Equipment '" + equipment.getName() + "' is already rented");
 
         User user = userRepository.findByUsername(principal.getUsername()).get();

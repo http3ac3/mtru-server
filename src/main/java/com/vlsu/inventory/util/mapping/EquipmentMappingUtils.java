@@ -117,6 +117,9 @@ public class EquipmentMappingUtils {
                 .responsible(ResponsibleMappingUtils.toDtoWithoutDepartment(equipment.getResponsible()))
                 .placement(PlacementMappingUtils.toDto(equipment.getPlacement()))
                 .subcategory(SubcategoryMappingUtils.toDtoWithoutCategory(equipment.getSubcategory()))
+                // TODO Solve N + 1 problem with finding rented equipment
+                .currentRent(equipment.getUnclosedRent() != null ?
+                        RentMappingUtils.toDto(equipment.getUnclosedRent()) : null)
                 .build();
     }
 
