@@ -105,10 +105,6 @@ public class EquipmentService {
         Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
         if (principal.isAdmin()) {
             responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsibleId()));
-            if (!responsible.isFinanciallyResponsible()) {
-                throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
-                        + responsible.getFirstName() + " can't be financially responsible for equipment");
-            }
         }
         Equipment create = EquipmentMappingUtils.fromDto(request);
         create.setResponsible(responsible);
@@ -136,10 +132,10 @@ public class EquipmentService {
                     " doesn't belong to " + responsible.getLastName()  + " " + responsible.getFirstName());
         } else if (principal.isAdmin()) {
             responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsibleId()));
-            if (!responsible.isFinanciallyResponsible()) {
-                throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
-                        + responsible.getFirstName() + " can't be financially responsible for equipment");
-            }
+//            if (!responsible.isFinanciallyResponsible()) {
+//                throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
+//                        + responsible.getFirstName() + " can't be financially responsible for equipment");
+//            }
         }
 
         Equipment update = EquipmentMappingUtils.fromDto(request);
