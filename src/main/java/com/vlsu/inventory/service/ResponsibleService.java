@@ -3,12 +3,14 @@ package com.vlsu.inventory.service;
 import com.vlsu.inventory.dto.model.ResponsibleDto;
 import com.vlsu.inventory.model.Responsible;
 import com.vlsu.inventory.model.User;
+import com.vlsu.inventory.repository.RentRepository;
 import com.vlsu.inventory.repository.ResponsibleRepository;
 import com.vlsu.inventory.repository.UserRepository;
 import com.vlsu.inventory.util.PaginationMap;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
 import com.vlsu.inventory.util.mapping.ResponsibleMappingUtils;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +32,8 @@ public class ResponsibleService {
     ResponsibleRepository responsibleRepository;
     DepartmentService departmentService;
     UserRepository userRepository;
+    RentRepository rentRepository;
+    UserService userService;
 
     // TODO Fix fetching User and Role info with Responsible data
     public List<ResponsibleDto.Response.Default> getAll(
@@ -84,6 +88,7 @@ public class ResponsibleService {
 
     // TODO Remove User account with deleting Responsible
     // TODO Check only unclosed Rents references for deleting Responsible
+    @Transactional
     public void delete(Long id) throws ResourceNotFoundException, ResourceHasDependenciesException {
         Responsible responsible = responsibleRepository
                 .findWithEquipmentById(id)
@@ -91,12 +96,9 @@ public class ResponsibleService {
         if (!responsible.getEquipment().isEmpty()) {
             throw new ResourceHasDependenciesException("Responsible with id '" + id + "' has relations with equipment");
         }
-        else if (!responsible.getRents().isEmpty()) {
-            throw new ResourceHasDependenciesException("Responsible with id '" + id + "' has relations with rents");
-        }
-        else if (responsible.getUser() != null) {
-            throw new ResourceHasDependenciesException("Responsible with id '" + id + "' is associate with user");
-        }
+        rentRepository.deleteByResponsibleId(id);
+        userService.deleteUserById(responsible.getUser().getId());
+
         responsibleRepository.deleteById(id);
     }
 

@@ -64,4 +64,6 @@ public interface RentRepository extends JpaRepository<Rent, Long>, JpaSpecificat
     List<Rent> findByResponsibleId(Long responsibleId);
     List<Rent> findByPlacementId(Long placementId);
     void deleteByEquipmentId(Long equipmentId);
+
+    void deleteByResponsibleId(Long responsibleId);
 }
