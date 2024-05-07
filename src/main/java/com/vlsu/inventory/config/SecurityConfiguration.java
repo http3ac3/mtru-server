@@ -4,6 +4,8 @@ import com.vlsu.inventory.security.JwtAuthFilter;
 import com.vlsu.inventory.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.BufferedImageHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 @Configuration
@@ -51,7 +54,7 @@ public class SecurityConfiguration {
                                 "api/v1/users/current-user", "api/v1/responsible/current-user")
                         .authenticated()
                         .requestMatchers("api/v1/departments/**", "api/v1/responsible/**",
-                                "api/v1/categories/**", "api/v1/subcategories/**")
+                                "api/v1/categories/**", "api/v1/subcategories/**", "api/v1/qr/**")
                         .hasAnyRole("ADMIN", "LABHEAD")
                         .requestMatchers("auth/register", "/api/v1/users/**")
                         .hasRole("ADMIN")
@@ -77,5 +80,10 @@ public class SecurityConfiguration {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public HttpMessageConverter<BufferedImage> createImageHttpMessageConverter() {
+        return new BufferedImageHttpMessageConverter();
     }
 }
