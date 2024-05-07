@@ -54,7 +54,7 @@ public class SecurityConfiguration {
                                 "api/v1/users/current-user", "api/v1/responsible/current-user")
                         .authenticated()
                         .requestMatchers("api/v1/departments/**", "api/v1/responsible/**",
-                                "api/v1/categories/**", "api/v1/subcategories/**", "api/v1/qr/**")
+                                "api/v1/categories/**", "api/v1/subcategories/**", "api/v1/qr/**", "api/v1/export/**")
                         .hasAnyRole("ADMIN", "LABHEAD")
                         .requestMatchers("auth/register", "/api/v1/users/**")
                         .hasRole("ADMIN")

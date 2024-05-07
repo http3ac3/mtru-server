@@ -18,6 +18,10 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Jpa
     List<Equipment> findAll(Specification<Equipment> spec);
 
     @Override
+    @EntityGraph(attributePaths = { "responsible", "placement", "subcategory", "rents"})
+    List<Equipment> findAll();
+
+    @Override
     @EntityGraph(attributePaths = { "responsible", "placement", "subcategory"})
     Optional<Equipment> findById(Long id);
 

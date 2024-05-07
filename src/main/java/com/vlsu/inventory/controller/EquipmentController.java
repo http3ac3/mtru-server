@@ -4,6 +4,7 @@ import com.vlsu.inventory.dto.ImageResponse;
 import com.vlsu.inventory.dto.model.EquipmentDto;
 import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.service.EquipmentService;
+import com.vlsu.inventory.service.ExcelExportService;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
@@ -26,6 +27,7 @@ import java.util.List;
 @RequestMapping("api/v1")
 public class EquipmentController {
     EquipmentService equipmentService;
+    ExcelExportService excelExportService;
 
     // TODO Create Params Request DTO
     @GetMapping("/equipment")
@@ -49,7 +51,6 @@ public class EquipmentController {
             List<EquipmentDto.Response.Default> equipment = equipmentService.getAllByParams(inventoryNumber, name, initialCostFrom, initialCostTo,
                     commissioningDateFrom, commissioningDateTo, decommissioningDateFrom, decommissioningDateTo,
                     commissioningActNumber, decommissioningActNumber, subcategoryId, responsibleId, placementId);
-
             return ResponseEntity.ok(equipment);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
