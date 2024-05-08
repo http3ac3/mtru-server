@@ -86,7 +86,6 @@ public class ResponsibleService {
         return responsibleRepository.save(update);
     }
 
-    // TODO Remove User account with deleting Responsible
     // TODO Check only unclosed Rents references for deleting Responsible
     @Transactional
     public void delete(Long id) throws ResourceNotFoundException, ResourceHasDependenciesException {

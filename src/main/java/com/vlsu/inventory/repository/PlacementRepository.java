@@ -12,4 +12,6 @@ public interface PlacementRepository extends JpaRepository<Placement, Long> {
 
     @Query("SELECT p FROM Placement p LEFT JOIN FETCH p.equipment e WHERE p.id = ?1")
     Optional<Placement> findWithEquipmentById(Long id);
+
+    Optional<Placement> findByName(String name);
 }

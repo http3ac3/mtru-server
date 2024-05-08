@@ -21,6 +21,8 @@ public interface ResponsibleRepository extends JpaRepository<Responsible, Long>,
     @EntityGraph(attributePaths = { "department", "user" })
     Optional<Responsible> findById(Long id);
 
+    List<Responsible> findByLastNameAndFirstNameAndPatronymic(String lastName, String firstName, String patronymic);
+    List<Responsible> findByLastNameAndFirstNameAndPatronymicIsNull(String lastName, String firstName);
     static Specification<Responsible> isFinanciallyResponsible(Boolean isFinanciallyResponsible) {
         return (responsible, query, criteriaBuilder) -> criteriaBuilder.equal(responsible
                 .get("isFinanciallyResponsible"), isFinanciallyResponsible);
