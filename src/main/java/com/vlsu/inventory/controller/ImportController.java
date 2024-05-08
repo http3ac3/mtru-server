@@ -17,13 +17,9 @@ public class ImportController {
     @PostMapping("/excel")
     public ResponseEntity<?> fromExcelFile(@RequestParam("file") MultipartFile file) {
         try {
-            System.out.println(file.getContentType());
-            importService.fromExcel(file);
-            return ResponseEntity.ok("Данные успешно загружены");
+            return ResponseEntity.ok(importService.fromExcel(file));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
     }
 }

@@ -1,5 +1,7 @@
 package com.vlsu.inventory.service;
 
+import com.vlsu.inventory.dto.excel.ImportError;
+import com.vlsu.inventory.dto.excel.ImportExcelResponse;
 import com.vlsu.inventory.model.Equipment;
 import com.vlsu.inventory.model.Placement;
 import com.vlsu.inventory.model.Responsible;
@@ -35,26 +37,27 @@ public class ImportService {
     PlacementRepository placementRepository;
     SubcategoryRepository subcategoryRepository;
     EquipmentRepository equipmentRepository;
-    private final String path = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
-    public void fromExcel(MultipartFile file) throws IOException {
+    public ImportExcelResponse fromExcel(MultipartFile file) throws IOException {
         Workbook workbook = new XSSFWorkbook(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
-        System.out.println(sheet.getLastRowNum());
+        ImportExcelResponse response = new ImportExcelResponse();
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Equipment equipment;
             try {
                 equipment = getEquipmentFromRow(sheet.getRow(i));
             } catch (DataFormatException | ResourceNotFoundException e) {
-                System.out.println(e.getMessage());
+                response.getErrors().add(new ImportError(i + 1, e.getMessage()));
                 continue;
             }
 
             try {
                 equipmentRepository.save(equipment);
+                response.successSave();
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                response.getErrors().add(new ImportError(i + 1, e.getMessage()));
             }
         }
+        return response;
     }
 
     private Equipment getEquipmentFromRow(Row row) throws DataFormatException, ResourceNotFoundException {
