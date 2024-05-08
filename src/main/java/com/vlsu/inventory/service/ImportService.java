@@ -54,7 +54,11 @@ public class ImportService {
                 equipmentRepository.save(equipment);
                 response.successSave();
             } catch (Exception e) {
-                response.getErrors().add(new ImportError(i + 1, e.getMessage()));
+                String message = e.getMessage().substring(
+                        e.getMessage().indexOf("[") + 1,
+                        e.getMessage().indexOf("]")
+                );
+                response.getErrors().add(new ImportError(i + 1, message));
             }
         }
         return response;
