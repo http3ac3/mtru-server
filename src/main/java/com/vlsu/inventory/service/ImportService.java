@@ -2,15 +2,11 @@ package com.vlsu.inventory.service;
 
 import com.vlsu.inventory.dto.excel.ImportError;
 import com.vlsu.inventory.dto.excel.ImportExcelResponse;
-import com.vlsu.inventory.model.Equipment;
-import com.vlsu.inventory.model.Placement;
-import com.vlsu.inventory.model.Responsible;
-import com.vlsu.inventory.model.Subcategory;
-import com.vlsu.inventory.repository.EquipmentRepository;
-import com.vlsu.inventory.repository.PlacementRepository;
-import com.vlsu.inventory.repository.ResponsibleRepository;
-import com.vlsu.inventory.repository.SubcategoryRepository;
+import com.vlsu.inventory.model.*;
+import com.vlsu.inventory.repository.*;
+import com.vlsu.inventory.util.exception.ActionNotAllowedException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.DataFormatException;
 
 @Service
@@ -37,7 +34,10 @@ public class ImportService {
     PlacementRepository placementRepository;
     SubcategoryRepository subcategoryRepository;
     EquipmentRepository equipmentRepository;
-    public ImportExcelResponse fromExcel(MultipartFile file) throws IOException {
+    UserRepository userRepository;
+
+
+    public ImportExcelResponse fromExcel(MultipartFile file, User principal) throws IOException {
         Workbook workbook = new XSSFWorkbook(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
         ImportExcelResponse response = new ImportExcelResponse();
@@ -45,7 +45,20 @@ public class ImportService {
             Equipment equipment;
             try {
                 equipment = getEquipmentFromRow(sheet.getRow(i));
-            } catch (DataFormatException | ResourceNotFoundException e) {
+
+                Responsible principalResponsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
+                if (!principal.isAdmin() && !Objects.equals(
+                        equipment.getResponsible().getDepartment().getId(),
+                        principalResponsible.getDepartment().getId())) {
+                    throw new ActionNotAllowedException(
+                            "Ответственный " +
+                            equipment.getResponsible().getLastName() + " " +
+                            equipment.getResponsible().getFirstName() + " " +
+                            " не принадлежит к структурному подразделению " +
+                            principalResponsible.getDepartment().getName());
+                }
+
+            } catch (DataFormatException | ResourceNotFoundException | ActionNotAllowedException e) {
                 response.getErrors().add(new ImportError(i + 1, e.getMessage()));
                 continue;
             }
