@@ -20,7 +20,7 @@ public enum EquipmentDto {;
     interface DecommissioningActNumber { String getDecommissioningActNumber(); }
     interface ImageData { String getImageData(); }
     interface Description { String getDescription(); }
-    interface Responsible { ResponsibleDto.Response.WithoutDepartment getResponsible(); }
+    interface Responsible { ResponsibleDto.Response.Default getResponsible(); }
     interface Subcategory { SubcategoryDto.Response.WithoutCategory getSubcategory(); }
     interface Placement { PlacementDto.Response.Default getPlacement(); }
     interface CurrentRent { RentDto.Response.Default getCurrentRent(); }
@@ -90,7 +90,7 @@ public enum EquipmentDto {;
             String decommissioningActNumber;
             String description;
             String imageData;
-            ResponsibleDto.Response.WithoutDepartment responsible;
+            ResponsibleDto.Response.Default responsible;
             SubcategoryDto.Response.WithoutCategory subcategory;
             PlacementDto.Response.Default placement;
             RentDto.Response.Default currentRent;

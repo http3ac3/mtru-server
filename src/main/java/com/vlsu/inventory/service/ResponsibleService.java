@@ -65,9 +65,9 @@ public class ResponsibleService {
         return ResponsibleMappingUtils.toDto(responsible);
     }
 
-    public ResponsibleDto.Response.WithoutDepartment getByPrincipal(User principal) {
+    public ResponsibleDto.Response.Default getByPrincipal(User principal) {
         Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
-        return ResponsibleMappingUtils.toDtoWithoutDepartment(responsible);
+        return ResponsibleMappingUtils.toDto(responsible);
     }
 
     public Responsible create(ResponsibleDto.Request.Create request) throws ResourceNotFoundException {

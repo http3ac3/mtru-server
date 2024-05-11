@@ -114,7 +114,7 @@ public class EquipmentMappingUtils {
                 .decommissioningActNumber(equipment.getDecommissioningActNumber())
                 .description(equipment.getDescription())
                 .imageData(equipment.getImageData())
-                .responsible(ResponsibleMappingUtils.toDtoWithoutDepartment(equipment.getResponsible()))
+                .responsible(ResponsibleMappingUtils.toDto(equipment.getResponsible()))
                 .placement(PlacementMappingUtils.toDto(equipment.getPlacement()))
                 .subcategory(SubcategoryMappingUtils.toDtoWithoutCategory(equipment.getSubcategory()))
                 .currentRent(equipment.getUnclosedRent() != null ?

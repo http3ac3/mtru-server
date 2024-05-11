@@ -44,6 +44,7 @@ public class EquipmentService {
     UserRepository userRepository;
     ImageService imageService;
     RentRepository rentRepository;
+    ResponsibleRepository responsibleRepository;
 
     public List<EquipmentDto.Response.Default> getAllByParams(
             String inventoryNumber, String name, BigDecimal initialCostFrom, BigDecimal initialCostTo,
@@ -103,11 +104,23 @@ public class EquipmentService {
         Subcategory subcategory = SubcategoryMappingUtils.fromDto(subcategoryService.getById(request.getSubcategoryId()));
 
         Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
-        if (principal.isAdmin()) {
-            responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsibleId()));
+        Responsible requestResponsible = responsibleRepository.findById(request.getResponsibleId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Responsible with id '" + request.getResponsibleId() + "' not found"));
+
+        if (!principal.isAdmin() && !Objects.equals(
+                requestResponsible.getDepartment().getId(),
+                responsible.getDepartment().getId())) {
+            throw new ActionNotAllowedException(
+                    "Responsible " + requestResponsible.getLastName() + " " +
+                    requestResponsible.getFirstName() + " " +
+                    " can't have responsibility to equipment with inventory number '" +
+                    request.getInventoryNumber() + " , because he doesn't belong to department" +
+                    responsible.getDepartment());
         }
+
         Equipment create = EquipmentMappingUtils.fromDto(request);
-        create.setResponsible(responsible);
+        create.setResponsible(requestResponsible);
         create.setPlacement(placement);
         create.setSubcategory(subcategory);
         Equipment saved = equipmentRepository.save(create);
@@ -126,21 +139,21 @@ public class EquipmentService {
         Subcategory subcategory = SubcategoryMappingUtils.fromDto(subcategoryService.getById(request.getSubcategoryId()));
 
         Responsible responsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
+        Responsible requestResponsible = responsibleRepository.findById(request.getResponsibleId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Responsible with id '" + request.getResponsibleId() + "' not found"));
 
-        if (!principal.isAdmin() && !Objects.equals(request.getResponsibleId(), responsible.getId())) {
+        if (!principal.isAdmin() && !Objects.equals(
+                requestResponsible.getDepartment().getId(),
+                responsible.getDepartment().getId())
+        ) {
             throw new ActionNotAllowedException("Equipment with inventory number '" + request.getInventoryNumber() +
                     " doesn't belong to " + responsible.getLastName()  + " " + responsible.getFirstName());
-        } else if (principal.isAdmin()) {
-            responsible = ResponsibleMappingUtils.fromDto(responsibleService.getById(request.getResponsibleId()));
-//            if (!responsible.isFinanciallyResponsible()) {
-//                throw new ActionNotAllowedException("Responsible " + responsible.getLastName() + " "
-//                        + responsible.getFirstName() + " can't be financially responsible for equipment");
-//            }
         }
 
         Equipment update = EquipmentMappingUtils.fromDto(request);
 
-        update.setResponsible(responsible);
+        update.setResponsible(requestResponsible);
         update.setPlacement(placement);
         update.setSubcategory(subcategory);
         update.setImageData(imageData);
@@ -161,7 +174,11 @@ public class EquipmentService {
         Equipment equipmentToDelete = equipmentRepository
                 .findWithRentsById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment with id: " + id + " not found"));
-        if (!principal.isAdmin() && !Objects.equals(equipmentToDelete.getResponsible().getId(), responsible.getId())) {
+
+        if (!principal.isAdmin() && !Objects.equals(
+                equipmentToDelete.getResponsible().getDepartment().getId(),
+                responsible.getDepartment().getId())
+        ) {
             throw new ActionNotAllowedException("Equipment doesn't belong to responsible "
                     + responsible.getLastName() + " " + responsible.getLastName());
         }
