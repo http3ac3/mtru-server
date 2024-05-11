@@ -68,7 +68,7 @@ public class ImportService {
                 response.successSave();
             } catch (Exception e) {
                 String message = e.getMessage().substring(
-                        e.getMessage().indexOf("[") + 1,
+                        e.getMessage().indexOf("Подробности"),
                         e.getMessage().indexOf("]")
                 );
                 response.getErrors().add(new ImportError(i + 1, message));
