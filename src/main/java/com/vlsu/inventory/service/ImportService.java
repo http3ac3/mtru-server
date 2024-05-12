@@ -150,6 +150,8 @@ public class ImportService {
             }
         } catch (IllegalStateException e) {
             throw new DataFormatException("Поле '" + fieldName + "' имеет неверный формат данных");
+        } catch (NullPointerException e) {
+            throw new DataFormatException("Поле '" + fieldName + "' должно быть заполнено");
         }
         return value;
     }
