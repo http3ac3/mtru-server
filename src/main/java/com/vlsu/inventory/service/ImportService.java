@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.zip.DataFormatException;
 
 @Service
@@ -206,11 +207,16 @@ public class ImportService {
         return responsibleList.get(0);
     }
 
-    private Placement getPlacementByName(String placementName) throws ResourceNotFoundException {
-        return placementRepository
-                .findByName(placementName.trim())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Ни одно помещение с названием: " + placementName + " не найдено"));
+    private Placement getPlacementByName(String placementName) {
+        Optional<Placement> placement = placementRepository
+                .findByName(placementName.trim());
+        if (placement.isPresent()) {
+            return placement.get();
+        } else {
+            Placement newPlacement = new Placement();
+            newPlacement.setName(placementName);
+            return placementRepository.save(newPlacement);
+        }
     }
 
     private Subcategory getSubcategoryByName(String subcategoryName) throws ResourceNotFoundException {
