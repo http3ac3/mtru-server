@@ -2,6 +2,7 @@ package com.vlsu.inventory.service;
 
 import com.vlsu.inventory.dto.excel.ImportError;
 import com.vlsu.inventory.dto.excel.ImportExcelResponse;
+import com.vlsu.inventory.dto.excel.ImportRequest;
 import com.vlsu.inventory.model.*;
 import com.vlsu.inventory.repository.*;
 import com.vlsu.inventory.util.exception.ActionNotAllowedException;
@@ -37,14 +38,14 @@ public class ImportService {
     UserRepository userRepository;
 
 
-    public ImportExcelResponse fromExcel(MultipartFile file, User principal) throws IOException {
-        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+    public ImportExcelResponse fromExcel(ImportRequest request, User principal) throws IOException {
+        Workbook workbook = new XSSFWorkbook(request.file().getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
         ImportExcelResponse response = new ImportExcelResponse();
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Equipment equipment;
             try {
-                equipment = getEquipmentFromRow(sheet.getRow(i));
+                equipment = getEquipmentFromRow(sheet.getRow(i), request);
 
                 Responsible principalResponsible = userRepository.findByUsername(principal.getUsername()).get().getResponsible();
                 if (!principal.isAdmin() && !Objects.equals(
@@ -77,7 +78,7 @@ public class ImportService {
         return response;
     }
 
-    private Equipment getEquipmentFromRow(Row row) throws DataFormatException, ResourceNotFoundException {
+    private Equipment getEquipmentFromRow(Row row, ImportRequest request) throws DataFormatException, ResourceNotFoundException {
         String inventoryNumber = getRequiredStringCellValue(row, 0, "Инвентарный номер");
         String name = getRequiredStringCellValue(row, 1, "Наименование");
 
@@ -90,8 +91,14 @@ public class ImportService {
             throw new DataFormatException("Поле 'Начальная стоимость' имеет неверный формат данных");
         }
 
-        LocalDate commissioningDate = getRequiredLocalDateCellValue(row, 3, "Дата ввода в эксплуатацию");
-        String commissioningActNumber = getRequiredStringCellValue(row, 4, "Номер акта о вводе в эксплуатацию");
+
+        LocalDate commissioningDate =
+                request.autoCommissioningDate() == null ?
+                getRequiredLocalDateCellValue(row, 3, "Дата ввода в эксплуатацию") : request.autoCommissioningDate();
+
+        String commissioningActNumber =
+                request.autoCommissioningActNumber() == null ?
+                getRequiredStringCellValue(row, 4, "Номер акта о вводе в эксплуатацию") : request.autoCommissioningActNumber();
 
         LocalDate decommissioningDate = null;
         String decommissioningActNumber = null;
@@ -111,8 +118,8 @@ public class ImportService {
             throw new DataFormatException("Если указан номер акта о выводе из эксплуатации, то необходимо указать дату вывода из эксплуатации");
         }
 
-        String responsibleFullName = getRequiredStringCellValue(row, 7, "Ответственный");
-        String placementName = getRequiredStringCellValue(row, 8, "Помещение");
+        Responsible responsible = getResponsible(row, request.autoResponsibleId());
+        Placement placement = getPlacement(row, request.autoPlacementId());
         String subcategoryName = getRequiredStringCellValue(row, 9, "Подкатегория");
 
         return Equipment.builder()
@@ -123,10 +130,28 @@ public class ImportService {
                 .commissioningActNumber(commissioningActNumber)
                 .decommissioningDate(decommissioningDate)
                 .decommissioningActNumber(decommissioningActNumber)
-                .responsible(getResponsibleByFullName(responsibleFullName))
-                .placement(getPlacementByName(placementName))
+                .responsible(responsible)
+                .placement(placement)
                 .subcategory(getSubcategoryByName(subcategoryName))
                 .build();
+    }
+
+    private Responsible getResponsible(Row row, Long responsibleId) throws ResourceNotFoundException, DataFormatException {
+        if (responsibleId != null) {
+            return responsibleRepository.findById(responsibleId).orElseThrow(
+                    () -> new ResourceNotFoundException("Ответственный с ID '" + responsibleId + "' не найден"));
+        } else {
+            return getResponsibleByFullName(getRequiredStringCellValue(row, 7, "Ответственный"));
+        }
+    }
+
+    private Placement getPlacement(Row row, Long placementId) throws ResourceNotFoundException, DataFormatException {
+        if (placementId != null) {
+            return placementRepository.findById(placementId).orElseThrow(
+                    () -> new ResourceNotFoundException("Помещение с ID '" + placementId + "' не найдено"));
+        } else {
+            return getPlacementByName(getRequiredStringCellValue(row, 8, "Помещение"));
+        }
     }
 
     private LocalDate getRequiredLocalDateCellValue(Row row, int index, String fieldName) throws DataFormatException {

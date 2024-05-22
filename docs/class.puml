@@ -1,0 +1,123 @@
+@startuml
+
+skinparam linetype ortho
+
+interface JpaRepository<T, ID> {
+    findById(ID id) : Optional<T>
+    findAll() : List<T>
+}
+interface JpaSpecificationExecutor<T> {
+    findAll(Specification<T>) : List<T>
+}
+
+interface EquipmentRepository {
+    findAll(Specification<Equipment> spec) : List<Equipment>
+    findAll() : List<Equipment>
+    findById(Long id) : Optional<Equipment>
+    findWithRentsById(Long id) : Optional<Equipment>
+    updateImageReference(Long id, String imagePath) : boolean
+    findImageDataById(Long id) : String
+}
+
+interface CategoryRepository {
+    findWithSubcategoriesById(Long id) : Optional<Category>
+}
+
+interface DepartmentRepository {
+    findWithResponsibleById(Long id) : Optional<Department>
+}
+
+interface PlacementRepository {
+    findWithEquipmentById(Long id) : Optional<Placement>
+    findByName(String name) : Optional<Placement>
+}
+
+interface RentRepository {
+    findUnclosedByResponsibleId(Long responsibleId) : List<Rent>
+    findById(Long id) : Optional<Rent>
+    findAll(Specification<Rent> spec) : List<Rent>
+    findByEquipmentId(Long equipmentId) : List<Rent>
+    deleteByEquipmentId(Long equipmentId) : void
+    deleteByResponsibleId(Long responsibleId) : void
+}
+
+interface ResponsibleRepository {
+    findAll(Specification<Responsible> spec) : List<Responsible>
+    findWithEquipmentById(Long id) : Optional<Responsible>
+    findById(Long id) : Optional<Responsible>
+    findByLastNameAndFirstNameAndPatronymic(String lastName, String firstName, String patronymic) : List<Responsible>
+    findByLastNameAndFirstNameAndPatronymicIsNull(String lastName, String firstName) : List<Responsible>
+}
+
+interface RoleRepository {
+    findByName(String name) : Optional<Role>
+    findByUsersId(Long userId) : List<Role>
+}
+
+interface SubcategoryRepository {
+    findAll() : List<Subcategory>
+    findById(Long id) : Optional<Subcategory>
+    findByName(String name) : Optional<Subcategory>
+    findCountOfEquipmentById(Long id) : Optional<Subcategory>
+    findByCategoryId(Long categoryId) : List<Subcategory>
+}
+
+interface UserRepository {
+    findAll() : List<User>
+    findByUsername(String username) : Optional<User>
+}
+
+class EquipmentSpecification {
+    + id : Integer
+    + name : String
+--
+    + inventoryNumberStartsWith(String inventoryNumber) : Specification<Equipment>
+    + nameStartsWith(String name) : Specification<Equipment>
+    + initialCostFrom(BigDecimal initialCost) : Specification<Equipment>
+    + initialCostTo(BigDecimal initialCost) : Specification<Equipment>
+    + commissioningDateFrom(LocalDate from) : Specification<Equipment>
+    + commissioningDateTo(LocalDate to) : Specification<Equipment>
+    + decommissioningDateFrom(LocalDate from) : Specification<Equipment>
+    + decommissioningDateTo(LocalDate to) : Specification<Equipment>
+    + commissioningActNumberLike(String act) : Specification<Equipment>
+    + decommissioningActNumberLike(String act) : Specification<Equipment>
+    + subcategoryIdEquals(Long subcategoryId) : Specification<Equipment>
+    + responsibleIdEquals(Long responsibleId) : Specification<Equipment>
+    + placementIdEquals(Long placementId) Specification<Equipment>
+}
+
+class ResponsibleSpecification {
+    + isFinanciallyResponsible(Boolean isFinanciallyResponsible) : Specification<Responsible>
+    + firstNameLike(String firstName) : Specification<Responsible>
+    + lastNameLike(String lastName) : Specification<Responsible>
+    + departmentIdEquals(Long departmentId) : Specification<Responsible>
+}
+
+class RentSpecification {
+    + endDateIsNull() : Specification<Rent>
+    + endDateIsNotNull() : Specification<Rent>
+    + createDateTimeFrom(LocalDateTime dateTime) : Specification<Rent>
+    + createDateTimeTo(LocalDateTime dateTime) : Specification<Rent>
+    + endDateTimeFrom(LocalDateTime dateTime) : Specification<Rent>
+    + endDateTimeTo(LocalDateTime dateTime) : Specification<Rent>
+    + equipmentIdEquals(Long equipmentId) : Specification<Rent>
+    + responsibleIdEquals(Long responsibleId) : Specification<Rent>
+    + placementsIdEquals(Long placementId) : Specification<Rent>
+}
+
+EquipmentRepository --|> JpaSpecificationExecutor
+RentRepository --|> JpaSpecificationExecutor
+ResponsibleRepository --|> JpaSpecificationExecutor
+
+UserRepository --|> JpaRepository
+SubcategoryRepository -r-|> JpaRepository
+CategoryRepository --|> JpaRepository
+EquipmentRepository -l-|> JpaRepository
+ResponsibleRepository -u-|> JpaRepository
+RoleRepository -l-|> JpaRepository
+PlacementRepository --|> JpaRepository
+DepartmentRepository --|> JpaRepository
+RentRepository -l-|> JpaRepository
+
+
+@enduml

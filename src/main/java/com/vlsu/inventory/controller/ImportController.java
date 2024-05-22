@@ -1,5 +1,6 @@
 package com.vlsu.inventory.controller;
 
+import com.vlsu.inventory.dto.excel.ImportRequest;
 import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.service.ImportService;
 import lombok.AccessLevel;
@@ -18,11 +19,11 @@ public class ImportController {
     ImportService importService;
     @PostMapping("/excel")
     public ResponseEntity<?> fromExcelFile(
-            @RequestParam("file") MultipartFile file,
+            @ModelAttribute ImportRequest request,
             @AuthenticationPrincipal User principal
     ) {
         try {
-            return ResponseEntity.ok(importService.fromExcel(file, principal));
+            return ResponseEntity.ok(importService.fromExcel(request, principal));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
