@@ -33,7 +33,7 @@ public class Placement {
     @JsonIgnore
     private List<Equipment> equipment;
 
-    @OneToMany(mappedBy = "placement")
+    @OneToMany(mappedBy = "placement", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<Rent> rents;
 }

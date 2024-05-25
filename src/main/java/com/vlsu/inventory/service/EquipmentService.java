@@ -38,7 +38,6 @@ import static com.vlsu.inventory.repository.specification.EquipmentSpecification
 public class EquipmentService {
 
     EquipmentRepository equipmentRepository;
-    ResponsibleService responsibleService;
     PlacementService placementService;
     SubcategoryService subcategoryService;
     UserRepository userRepository;

@@ -52,9 +52,6 @@ public class PlacementService {
         if (!placement.getEquipment().isEmpty()) {
             throw new ResourceHasDependenciesException("Placement with id: " + id + " has relations with equipment");
         }
-        else if (!placement.getRents().isEmpty()) {
-            throw new ResourceHasDependenciesException("Placement with id: " + id + " has relations with rents");
-        }
         placementRepository.deleteById(id);
     }
 }

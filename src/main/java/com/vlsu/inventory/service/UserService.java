@@ -58,13 +58,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void changePasswordByUsername(String username, String password)
-            throws UsernameNotFoundException {
-        User user = getByUsername(username);
-        user.setPassword(password);
-        userRepository.save(user);
-    }
-
     public void deleteUserById(Long id) throws ResourceNotFoundException {
         User userToDelete = getUserById(id);
         List<Role> userRoles = roleRepository.findByUsersId(id);

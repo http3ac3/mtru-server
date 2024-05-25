@@ -13,8 +13,6 @@ import java.util.List;
 
 @Service
 public class ExcelExportService {
-    private final String path = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
-
     public Workbook createReport(List<EquipmentDto.Response.Default> equipmentList) throws IOException, InvalidFormatException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Оборудование");

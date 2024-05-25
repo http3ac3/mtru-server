@@ -31,7 +31,6 @@ public class RentService {
 
     RentRepository rentRepository;
     EquipmentRepository equipmentRepository;
-    ResponsibleService responsibleService;
     PlacementService placementService;
     UserRepository userRepository;
 
