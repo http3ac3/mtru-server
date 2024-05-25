@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.vlsu.inventory.repository.EquipmentRepository.*;
+import static com.vlsu.inventory.repository.specification.EquipmentSpecification.*;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

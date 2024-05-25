@@ -1,7 +1,6 @@
 package com.vlsu.inventory.repository;
 
 import com.vlsu.inventory.model.User;
-import org.hibernate.annotations.Fetch;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 

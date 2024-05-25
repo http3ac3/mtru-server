@@ -21,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import static com.vlsu.inventory.repository.specification.ResponsibleSpecification.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -43,16 +45,16 @@ public class ResponsibleService {
             Long departmentId) {
         Specification<Responsible> filter = (root, query, criteriaBuilder) -> criteriaBuilder.greaterThan(root.get("id"), 0);
         if (firstName != null) {
-            filter = filter.and(ResponsibleRepository.firstNameLike(firstName));
+            filter = filter.and(firstNameLike(firstName));
         }
         if (lastName != null) {
-            filter = filter.and(ResponsibleRepository.lastNameLike(lastName));
+            filter = filter.and(lastNameLike(lastName));
         }
         if (isFinanciallyResponsible != null) {
-            filter = filter.and(ResponsibleRepository.isFinanciallyResponsible(isFinanciallyResponsible));
+            filter = filter.and(isFinanciallyResponsible(isFinanciallyResponsible));
         }
         if (departmentId != null) {
-            filter = filter.and(ResponsibleRepository.departmentIdEquals(departmentId));
+            filter = filter.and(departmentIdEquals(departmentId));
         }
         List<Responsible> responsibleList = responsibleRepository.findAll(filter);
         return responsibleList.stream().map(ResponsibleMappingUtils::toDto).toList();

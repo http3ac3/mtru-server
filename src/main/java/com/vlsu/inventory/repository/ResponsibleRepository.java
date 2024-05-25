@@ -23,18 +23,5 @@ public interface ResponsibleRepository extends JpaRepository<Responsible, Long>,
 
     List<Responsible> findByLastNameAndFirstNameAndPatronymic(String lastName, String firstName, String patronymic);
     List<Responsible> findByLastNameAndFirstNameAndPatronymicIsNull(String lastName, String firstName);
-    static Specification<Responsible> isFinanciallyResponsible(Boolean isFinanciallyResponsible) {
-        return (responsible, query, criteriaBuilder) -> criteriaBuilder.equal(responsible
-                .get("isFinanciallyResponsible"), isFinanciallyResponsible);
-    }
-    static Specification<Responsible> firstNameLike(String firstName) {
-        return (responsible, query, criteriaBuilder) -> criteriaBuilder.like(responsible.get("firstName"), "%"+firstName+"%");
-    }
-    static Specification<Responsible> lastNameLike(String lastName) {
-        return (responsible, query, criteriaBuilder) -> criteriaBuilder.like(responsible.get("lastName"), "%"+lastName+"%");
-    }
 
-    static Specification<Responsible> departmentIdEquals(Long departmentId) {
-        return (responsible, query, criteriaBuilder) -> criteriaBuilder.equal(responsible.get("department").get("id"), departmentId);
-    }
 }
