@@ -80,12 +80,14 @@ public class RentController {
 
     @PutMapping("/rents/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> close(@PathVariable Long id) {
+    public ResponseEntity<?> close(@PathVariable Long id, @AuthenticationPrincipal User principal) {
         try {
-            rentService.closeRent(id);
+            rentService.closeRent(id, principal);
             return ResponseEntity.ok("Взятие завершено");
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ActionNotAllowedException e) {
+            return ResponseEntity.status(HttpStatus.LOCKED).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

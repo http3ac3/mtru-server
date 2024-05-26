@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.vlsu.inventory.repository.specification.RentSpecification.*;
 
@@ -33,6 +34,7 @@ public class RentService {
     EquipmentRepository equipmentRepository;
     PlacementService placementService;
     UserRepository userRepository;
+    ResponsibleService responsibleService;
 
     public RentDto.Response.Default getById(Long id) throws ResourceNotFoundException {
         Rent rent = rentRepository.findById(id)
@@ -100,11 +102,15 @@ public class RentService {
         return request;
     }
 
-    // TODO Do impossible to close others rent by user
-    public void closeRent(Long id) throws ResourceNotFoundException {
+    public void closeRent(Long id, User principal) throws ResourceNotFoundException, ActionNotAllowedException {
         Rent update = rentRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rent with id '" + id + "' not found"));
+        Responsible responsible = responsibleService.getByPrincipal(principal);
+        if (!Objects.equals(update.getResponsible().getId(), responsible.getId())) {
+            throw new ActionNotAllowedException("Вынос с ID " + id + " не осуществляется работником " +
+                    responsible.getLastName() + " " + responsible.getFirstName());
+        }
         update.setEndDateTime(LocalDateTime.now());
         rentRepository.save(update);
     }

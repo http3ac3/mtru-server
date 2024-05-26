@@ -6,6 +6,7 @@ import com.vlsu.inventory.model.User;
 import com.vlsu.inventory.service.ResponsibleService;
 import com.vlsu.inventory.util.exception.ResourceHasDependenciesException;
 import com.vlsu.inventory.util.exception.ResourceNotFoundException;
+import com.vlsu.inventory.util.mapping.ResponsibleMappingUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -57,7 +58,8 @@ public class ResponsibleController {
 
     @GetMapping("/responsible/current-user")
     public ResponseEntity<?> getByPrincipal(@AuthenticationPrincipal User principal) {
-        return ResponseEntity.ok(responsibleService.getByPrincipal(principal));
+        Responsible responsible = responsibleService.getByPrincipal(principal);
+        return ResponseEntity.ok(ResponsibleMappingUtils.toDto(responsible));
     }
 
     @PostMapping("/responsible")
