@@ -49,15 +49,15 @@ public class SecurityConfiguration {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("auth/sign-in").permitAll()
-                        .requestMatchers("api/v1/rents/**", "api/v1/equipment/**", "api/v1/placements/**",
-                                "api/v1/users/current-user", "api/v1/responsible/current-user")
+                        .requestMatchers("/auth/sign-in", "/auth/").permitAll()
+                        .requestMatchers("/api/v1/rents/**", "/api/v1/equipment/**", "/api/v1/placements/**",
+                                "/api/v1/users/current-user", "/api/v1/responsible/current-user")
                         .authenticated()
-                        .requestMatchers("api/v1/departments/**", "api/v1/responsible/**",
-                                "api/v1/categories/**", "api/v1/subcategories/**", "api/v1/qr/**", "api/v1/export/**",
-                                "api/v1/import/**")
+                        .requestMatchers("/api/v1/departments/**", "/api/v1/responsible/**",
+                                "/api/v1/categories/**", "/api/v1/subcategories/**", "/api/v1/qr/**", "/api/v1/export/**",
+                                "/api/v1/import/**")
                         .hasAnyRole("ADMIN", "LABHEAD")
-                        .requestMatchers("auth/register", "/api/v1/users/**")
+                        .requestMatchers("/auth/register", "/api/v1/users/**")
                         .hasRole("ADMIN")
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

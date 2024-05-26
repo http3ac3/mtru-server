@@ -24,10 +24,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("/api/v1")
 public class EquipmentController {
     EquipmentService equipmentService;
-    ExcelExportService excelExportService;
 
     // TODO Create Params Request DTO
     @GetMapping("/equipment")
