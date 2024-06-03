@@ -11,9 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +40,10 @@ public class ImportService {
     public ImportExcelResponse fromExcel(ImportRequest request, User principal) throws IOException {
         Workbook workbook = new XSSFWorkbook(request.file().getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
+        DataFormat fmt = workbook.createDataFormat();
+        CellStyle textCellStyle = workbook.createCellStyle();
+        textCellStyle.setDataFormat(fmt.getFormat("@"));
+        sheet.setDefaultColumnStyle(0, textCellStyle);
         ImportExcelResponse response = new ImportExcelResponse();
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Equipment equipment;
@@ -168,9 +170,14 @@ public class ImportService {
     }
 
     private String getRequiredStringCellValue(Row row, int index, String fieldName) throws DataFormatException {
-        String value;
+        String value = "";
         try {
-            value = row.getCell(index).getStringCellValue();
+            Cell currentCell = row.getCell(index);
+            if (currentCell.getCellType().equals(CellType.NUMERIC)) {
+                value = BigDecimal.valueOf(currentCell.getNumericCellValue()).toPlainString();
+            } else {
+                value = currentCell.getStringCellValue();
+            }
             if (value.isEmpty()) {
                 throw new DataFormatException("Поле '" + fieldName + "' должно быть заполнено");
             }

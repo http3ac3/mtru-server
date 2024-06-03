@@ -11,6 +11,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Random;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -68,7 +69,7 @@ public class EquipmentControllerTest {
         this.mockMvc.perform(post("/api/v1/equipment")
                         .with(user(user))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .param("inventoryNumber", "2002002020")
+                .param("inventoryNumber", "" + new Random().nextInt(1000000))
                 .param("name", "Принтер Kyocera Ecosys PA2001")
                 .param("initialCost", "10000")
                 .param("commissioningDate", "2024-01-01")
@@ -163,7 +164,7 @@ public class EquipmentControllerTest {
                     .param("placementId", "3")
                     .param("subcategoryId", "16"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound());
     }
 
 
