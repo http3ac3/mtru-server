@@ -17,3 +17,9 @@ databaseChangeLog:
   - include:
       file: update-changeset/add-initial-cost-column-to-equipment.sql
       relativeToChangelogFile: true
+  - include:
+      file: initial-changeset/initial-category-data.sql
+      relativeToChangelogFile: true
+  - include:
+      file: initial-changeset/initial-subcategory-data.sql
+      relativeToChangelogFile: true
